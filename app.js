@@ -84,8 +84,6 @@ async function fetchDrawResults() {
 }
 
 function getFallbackData() {
-    const today = new Date();
-    
     if (currentGame === 'euromilhoes') {
         return {
             numbers: [4, 26, 32, 35, 36],
@@ -96,7 +94,7 @@ function getFallbackData() {
         return {
             numbers: [5, 7, 13, 21, 40],
             stars: [7],
-            date: new Date(2026, 4, 10)
+            date: new Date(2026, 4, 13)
         };
     }
 }

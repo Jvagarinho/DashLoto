@@ -1,0 +1,13 @@
+{
+  "name": "dashloto",
+  "version": "1.0.0",
+  "description": "Verificador de resultados Euromilhões e Totoloto",
+  "scripts": {
+    "dev": "vercel dev",
+    "start": "vercel dev"
+  },
+  "dependencies": {
+    "axios": "^1.6.0",
+    "cheerio": "^1.0.0-rc.12"
+  }
+}

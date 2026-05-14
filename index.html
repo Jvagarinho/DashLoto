@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DashLoto - Verificador de Jogos Santa Casa</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        santa: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            500: '#0ea5e9',
+                            600: '#0284c7',
+                            700: '#0369a1',
+                            900: '#0c4a6e',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="bg-gradient-to-br from-santa-900 via-santa-700 to-santa-900 min-h-screen">
+    <div class="container mx-auto px-4 py-8 max-w-4xl">
+        <header class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-white mb-2">🎰 DashLoto</h1>
+            <p class="text-santa-100">Verificador de Resultados - Euromilhões & Totoloto</p>
+        </header>
+
+        <div class="bg-white rounded-2xl shadow-2xl p-6 mb-6">
+            <div class="flex justify-center gap-4 mb-6">
+                <button id="btn-euromilhoes" class="game-btn active px-6 py-3 rounded-xl font-semibold transition-all" data-game="euromilhoes">
+                    ⭐ Euromilhões
+                </button>
+                <button id="btn-totoloto" class="game-btn px-6 py-3 rounded-xl font-semibold transition-all" data-game="totoloto">
+                    🎯 Totoloto
+                </button>
+            </div>
+
+            <div id="game-info" class="mb-6 p-4 bg-santa-50 rounded-xl">
+                <h3 class="font-semibold text-santa-900 mb-2">Como inserir a tua chave:</h3>
+                <p id="game-instructions" class="text-sm text-santa-700">5 números (1-50) + 2 estrelas (1-12)</p>
+            </div>
+
+            <form id="ticket-form" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Números</label>
+                    <div id="numbers-input" class="flex flex-wrap gap-2 justify-center">
+                        <input type="number" min="1" max="50" placeholder="#" class="number-input w-14 h-14 text-center text-lg border-2 border-gray-300 rounded-lg focus:border-santa-500 focus:ring-2 focus:ring-santa-200 outline-none" required>
+                        <input type="number" min="1" max="50" placeholder="#" class="number-input w-14 h-14 text-center text-lg border-2 border-gray-300 rounded-lg focus:border-santa-500 focus:ring-2 focus:ring-santa-200 outline-none" required>
+                        <input type="number" min="1" max="50" placeholder="#" class="number-input w-14 h-14 text-center text-lg border-2 border-gray-300 rounded-lg focus:border-santa-500 focus:ring-2 focus:ring-santa-200 outline-none" required>
+                        <input type="number" min="1" max="50" placeholder="#" class="number-input w-14 h-14 text-center text-lg border-2 border-gray-300 rounded-lg focus:border-santa-500 focus:ring-2 focus:ring-santa-200 outline-none" required>
+                        <input type="number" min="1" max="50" placeholder="#" class="number-input w-14 h-14 text-center text-lg border-2 border-gray-300 rounded-lg focus:border-santa-500 focus:ring-2 focus:ring-santa-200 outline-none" required>
+                    </div>
+                </div>
+
+                <div>
+                    <label id="stars-label" class="block text-sm font-medium text-gray-700 mb-2">Estrelas</label>
+                    <div id="stars-input" class="flex flex-wrap gap-2 justify-center">
+                        <input type="number" min="1" max="12" placeholder="#" class="star-input w-14 h-14 text-center text-lg border-2 border-gray-300 rounded-lg focus:border-santa-500 focus:ring-2 focus:ring-santa-200 outline-none" required>
+                        <input type="number" min="1" max="12" placeholder="#" class="star-input w-14 h-14 text-center text-lg border-2 border-gray-300 rounded-lg focus:border-santa-500 focus:ring-2 focus:ring-santa-200 outline-none" required>
+                    </div>
+                </div>
+
+                <div class="flex gap-4 justify-center pt-4">
+                    <button type="submit" class="bg-santa-600 hover:bg-santa-700 text-white px-8 py-3 rounded-xl font-semibold transition-all hover:scale-105">
+                        ✅ Verificar Chave
+                    </button>
+                    <button type="button" id="save-favorite" class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-6 py-3 rounded-xl font-semibold transition-all">
+                        ⭐ Guardar Favorita
+                    </button>
+                    <button type="button" id="load-favorite" class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-6 py-3 rounded-xl font-semibold transition-all">
+                        📂 Carregar Favorita
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <div id="result-section" class="hidden bg-white rounded-2xl shadow-2xl p-6">
+            <h2 class="text-2xl font-bold text-center text-santa-900 mb-4">📊 Resultado do Sorteio</h2>
+            
+            <div id="draw-info" class="text-center mb-6 p-4 bg-santa-50 rounded-xl">
+                <p class="text-sm text-gray-600">Sorteio de</p>
+                <p id="draw-date" class="text-lg font-semibold text-santa-900">--</p>
+            </div>
+
+            <div class="flex justify-center gap-8 mb-6">
+                <div class="text-center">
+                    <p class="text-sm text-gray-600 mb-2">Números Sorteados</p>
+                    <div id="drawn-numbers" class="flex gap-2 justify-center"></div>
+                </div>
+                <div class="text-center">
+                    <p id="stars-title" class="text-sm text-gray-600 mb-2">Estrelas</p>
+                    <div id="drawn-stars" class="flex gap-2 justify-center"></div>
+                </div>
+            </div>
+
+            <div id="match-result" class="text-center p-6 rounded-xl">
+                <h3 class="text-xl font-bold mb-4">Tua Chave</h3>
+                <div class="flex justify-center gap-4 mb-4">
+                    <div id="user-numbers" class="flex gap-2"></div>
+                    <div id="user-stars" class="flex gap-2"></div>
+                </div>
+                <div class="grid grid-cols-2 gap-4 max-w-md mx-auto">
+                    <div class="bg-blue-100 p-4 rounded-xl">
+                        <p class="text-2xl font-bold text-blue-700" id="matched-numbers">0</p>
+                        <p class="text-sm text-blue-600">Números</p>
+                    </div>
+                    <div class="bg-purple-100 p-4 rounded-xl">
+                        <p class="text-2xl font-bold text-purple-700" id="matched-stars">0</p>
+                        <p class="text-sm text-purple-600">Estrelas</p>
+                    </div>
+                </div>
+                <div id="prize-result" class="mt-6 p-6 rounded-xl text-center">
+                    <p class="text-lg font-semibold" id="prize-text">Aguardando verificação...</p>
+                    <p id="prize-amount" class="text-3xl font-bold mt-2"></p>
+                </div>
+            </div>
+        </div>
+
+        <div id="loading" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center">
+            <div class="bg-white p-8 rounded-2xl text-center">
+                <div class="animate-spin w-12 h-12 border-4 border-santa-500 border-t-transparent rounded-full mx-auto mb-4"></div>
+                <p class="text-gray-700">A carregar resultados...</p>
+            </div>
+        </div>
+
+        <footer class="text-center mt-8 text-santa-100 text-sm">
+            <p>Resultados oficiais: <a href="https://www.jogossanta-casa.pt" target="_blank" class="underline hover:text-white">jogossanta-casa.pt</a></p>
+            <p class="mt-2">DashLoto © 2026 - Apenas para fins informativos</p>
+        </footer>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

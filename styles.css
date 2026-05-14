@@ -1,0 +1,113 @@
+.game-btn {
+    background-color: #e5e7eb;
+    color: #374151;
+}
+
+.game-btn.active {
+    background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
+    color: white;
+    box-shadow: 0 4px 15px rgba(14, 165, 233, 0.4);
+}
+
+.game-btn:not(.active):hover {
+    background-color: #d1d5db;
+}
+
+.number-input::-webkit-outer-spin-button,
+.number-input::-webkit-inner-spin-button,
+.star-input::-webkit-outer-spin-button,
+.star-input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.number-input[type=number],
+.star-input[type=number] {
+    -moz-appearance: textfield;
+}
+
+.number-input.matched {
+    background-color: #86efac;
+    border-color: #22c55e;
+    color: #166534;
+}
+
+.star-input.matched {
+    background-color: #c4b5fd;
+    border-color: #8b5cf6;
+    color: #5b21b6;
+}
+
+.drawn-number {
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
+    color: white;
+    border-radius: 50%;
+    font-weight: bold;
+    font-size: 1.1rem;
+}
+
+.drawn-star {
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+    color: white;
+    border-radius: 50%;
+    font-weight: bold;
+    font-size: 1.1rem;
+}
+
+.user-number {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #e5e7eb;
+    color: #374151;
+    border-radius: 50%;
+    font-weight: bold;
+}
+
+.user-star {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #ddd6fe;
+    color: #5b21b6;
+    border-radius: 50%;
+    font-weight: bold;
+}
+
+#prize-result.winner {
+    background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+    color: #92400e;
+}
+
+#prize-result.no-win {
+    background-color: #f3f4f6;
+    color: #6b7280;
+}
+
+@media (max-width: 640px) {
+    .game-btn {
+        padding: 0.75rem 1rem;
+        font-size: 0.875rem;
+    }
+
+    .number-input,
+    .star-input {
+        width: 3rem;
+        height: 3rem;
+        font-size: 1rem;
+    }
+}

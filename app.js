@@ -88,15 +88,15 @@ function getFallbackData() {
     
     if (currentGame === 'euromilhoes') {
         return {
-            numbers: [14, 21, 29, 35, 47],
-            stars: [3, 8],
-            date: new Date(today.setDate(today.getDate() - 1))
+            numbers: [4, 26, 32, 35, 36],
+            stars: [5, 7],
+            date: new Date(2026, 4, 12)
         };
     } else {
         return {
             numbers: [5, 7, 13, 21, 40],
             stars: [7],
-            date: new Date(today.setDate(today.getDate() - 1))
+            date: new Date(2026, 4, 10)
         };
     }
 }

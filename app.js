@@ -99,26 +99,6 @@ function getFallbackData() {
     }
 }
 
-function getFallbackData() {
-    const today = new Date();
-    
-    if (currentGame === 'euromilhoes') {
-        return {
-            numbers: [12, 23, 34, 41, 48],
-            stars: [4, 9],
-            date: new Date(today.setDate(today.getDate() - 1)),
-            prizePool: 17000000
-        };
-    } else {
-        return {
-            numbers: [5, 12, 27, 33, 41],
-            stars: [7],
-            date: new Date(today.setDate(today.getDate() - 1)),
-            prizePool: 1500000
-        };
-    }
-}
-
 function renderDrawnNumbers(numbers, stars) {
     const numbersContainer = document.getElementById('drawn-numbers');
     const starsContainer = document.getElementById('drawn-stars');

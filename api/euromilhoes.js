@@ -11,30 +11,25 @@ module.exports = async function(req, res) {
             headers: {
                 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
                 'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9',
-                'Accept-Language': 'pt-PT,pt;q=0.9,en;q=0.8'
+                'Accept-Language': 'pt-PT,pt;q=0.9'
             },
             timeout: 20000
         });
 
         const $ = cheerio.load(response.data);
         
-        let numbers = [];
-        let stars = [];
+        let allNumbers = [];
         let date = '';
         
-        $('ul.colums li').each((i, el) => {
+        $('li').each((i, el) => {
             const text = $(el).text().trim();
             const num = parseInt(text);
-            if (!isNaN(num)) {
-                if (numbers.length < 5) {
-                    numbers.push(num);
-                } else if (stars.length < 2) {
-                    stars.push(num);
-                }
+            if (!isNaN(num) && num >= 1 && num <= 50) {
+                allNumbers.push({ num, class: $(el).attr('class'), parent: $(el).parent().attr('class') });
             }
         });
         
-        $('*').each((i, el) => {
+        $('span, p, div').each((i, el) => {
             const text = $(el).text();
             const match = text.match(/(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})/);
             if (match && !date) {
@@ -42,13 +37,19 @@ module.exports = async function(req, res) {
             }
         });
         
-        console.log('Euromilhões extraído - Numbers:', numbers, 'Stars:', stars, 'Date:', date);
+        console.log('Todos os números encontrados:', allNumbers.slice(0, 20));
         
-        if (numbers.length >= 5) {
-            res.json({ numbers, stars: stars.length ? stars : [1, 2], date });
-        } else {
-            res.status(500).json({ error: 'Não foi possível extrair os dados' });
-        }
+        const numbers = allNumbers.slice(0, 5).map(n => n.num);
+        const stars = allNumbers.slice(5, 7).map(n => n.num);
+        
+        console.log('Euromilhões - Numbers:', numbers, 'Stars:', stars);
+        
+        res.json({ 
+            numbers, 
+            stars: stars.length >= 2 ? stars : [1, 2], 
+            date,
+            debug: allNumbers.slice(0, 15)
+        });
     } catch (error) {
         console.error('Erro Euromilhões:', error.message);
         res.status(500).json({ error: error.message });

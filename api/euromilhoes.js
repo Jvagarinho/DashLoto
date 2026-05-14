@@ -26,18 +26,46 @@ async function handler(req, res) {
 
         const $ = cheerio.load(response.data);
         
-        let allNumbers = [];
+        const numbers = [];
+        const stars = [];
         let date = '';
         
-        $('li').each((i, el) => {
-            const text = $(el).text().trim();
-            const num = parseInt(text);
-            if (!isNaN(num) && num >= 1 && num <= 50) {
-                allNumbers.push(num);
-            }
-        });
+        const columsList = $('ul.colums');
         
-        $('span, p, div').each((i, el) => {
+        if (columsList.length > 0) {
+            const firstUl = columsList.first();
+            
+            const allLis = firstUl.find('li').toArray();
+            
+            for (let i = 0; i < Math.min(allLis.length, 7); i++) {
+                const text = $(allLis[i]).text().trim();
+                const num = parseInt(text);
+                if (!isNaN(num) && num >= 1 && num <= 50) {
+                    if (numbers.length < 5) {
+                        numbers.push(num);
+                    } else {
+                        stars.push(num);
+                    }
+                }
+            }
+        }
+        
+        if (numbers.length < 5) {
+            $('ul.colums li').each((i, el) => {
+                if (numbers.length >= 5 && stars.length >= 2) return;
+                const text = $(el).text().trim();
+                const num = parseInt(text);
+                if (!isNaN(num) && num >= 1 && num <= 50) {
+                    if (numbers.length < 5) {
+                        numbers.push(num);
+                    } else if (num <= 12 && stars.length < 2) {
+                        stars.push(num);
+                    }
+                }
+            });
+        }
+        
+        $('[class*="date"]').each((i, el) => {
             const text = $(el).text();
             const match = text.match(/(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})/);
             if (match && !date) {
@@ -45,10 +73,10 @@ async function handler(req, res) {
             }
         });
         
-        console.log('Euromilhões encontrados:', allNumbers.slice(0, 10));
+        numbers.sort((a, b) => a - b);
+        stars.sort((a, b) => a - b);
         
-        const numbers = allNumbers.slice(0, 5);
-        const stars = allNumbers.slice(5, 7);
+        console.log('Euromilhões:', { numbers, stars, date });
         
         res.status(200).json({ 
             numbers, 
@@ -56,7 +84,7 @@ async function handler(req, res) {
             date
         });
     } catch (error) {
-        console.error('Erro Euromilhões:', error.message);
+        console.error('Erro:', error.message);
         res.status(500).json({ error: error.message });
     }
 }

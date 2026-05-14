@@ -2,19 +2,6 @@
 
 Web App para verificação de resultados do Euromilhões e Totoloto da Santa Casa.
 
-## 🚀 Deploy para Vercel
-
-### Opção 1: GitHub (Recomendado)
-1. Faz push do código para um repositório GitHub
-2. Vai a [vercel.com](https://vercel.com) e faz "Import Project"
-3. Seleciona o repositório
-4. Clica em "Deploy"
-
-### Opção 2: Vercel CLI
-```bash
-npm i -g vercel
-vercel
-```
 
 ## 📁 Estrutura do Projeto
 

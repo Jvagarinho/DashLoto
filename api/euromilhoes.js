@@ -17,9 +17,9 @@ async function handler(req, res) {
         
         const response = await axios.get(BASE_URL + '/', {
             headers: {
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-                'Accept': 'text/html,application/xhtml+xml',
-                'Accept-Language': 'pt-PT,pt;q=0.9'
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9',
+                'Accept-Language': 'pt-PT,pt;q=0.9,en;q=0.8'
             },
             timeout: 20000
         });
@@ -58,54 +58,32 @@ async function handler(req, res) {
             }
         });
         
-        const prizeTable = $('table');
+        let allText = $.html();
         
-        prizeTable.find('tr').each((i, row) => {
-            const cells = $(row).find('td');
-            if (cells.length >= 2) {
-                let categoryCell = $(cells[0]).text().trim();
-                let amountCell = $(cells[1]).text().trim();
-                
-                let value = 0;
-                const cleanedAmount = amountCell.replace(/[^\d,.]/g, '').replace(/\./g, '').replace(',', '.');
-                const numMatch = cleanedAmount.match(/[\d.]+/);
-                if (numMatch) {
-                    value = parseFloat(numMatch[0]);
-                }
-                
-                categoryCell = categoryCell.toLowerCase();
-                
-                if (categoryCell.includes('5') && categoryCell.includes('2')) {
-                    prizes['5+2'] = value;
-                } else if (categoryCell.includes('5') && categoryCell.includes('1')) {
-                    prizes['5+1'] = value;
-                } else if (categoryCell.includes('5') && categoryCell.includes('0')) {
-                    prizes['5+0'] = value;
-                } else if (categoryCell.includes('4') && categoryCell.includes('2')) {
-                    prizes['4+2'] = value;
-                } else if (categoryCell.includes('4') && categoryCell.includes('1')) {
-                    prizes['4+1'] = value;
-                } else if (categoryCell.includes('4') && categoryCell.includes('0')) {
-                    prizes['4+0'] = value;
-                } else if (categoryCell.includes('3') && categoryCell.includes('2')) {
-                    prizes['3+2'] = value;
-                } else if (categoryCell.includes('3') && categoryCell.includes('1')) {
-                    prizes['3+1'] = value;
-                } else if (categoryCell.includes('3') && categoryCell.includes('0')) {
-                    prizes['3+0'] = value;
-                } else if (categoryCell.includes('2') && categoryCell.includes('2')) {
-                    prizes['2+2'] = value;
-                } else if (categoryCell.includes('2') && categoryCell.includes('1')) {
-                    prizes['2+1'] = value;
-                } else if (categoryCell.includes('1') && categoryCell.includes('2')) {
-                    prizes['1+2'] = value;
-                }
-                
-                console.log(`Row ${i}: "${categoryCell}" => ${amountCell} (parsed: ${value})`);
+        const jsonMatch = allText.match(/window\.appData\s*=\s*(\{.*?\});/s) ||
+                        allText.match(/__PRELOADED_STATE__\s*=\s*(\{.*?});/s) ||
+                        allText.match(/data\s*=\s*(\{.*?});/s);
+        
+        if (jsonMatch) {
+            console.log('Encontrou dados JSON no HTML');
+        }
+        
+        const scriptTags = $('script').toArray();
+        scriptTags.forEach((script, idx) => {
+            const text = $(script).html() || '';
+            if (text.includes('prize') || text.includes('prémio') || text.includes('amount')) {
+                console.log(`Script ${idx} contém prize data`);
             }
         });
         
-        console.log('Prémios extraídos:', prizes);
+        $('*').each((i, el) => {
+            const text = $(el).text();
+            const match = text.match(/(\d{1,2})\s*\+\s*(\d)\s*(estrelas?|stars?)/i);
+        });
+        
+        prizes = getFallbackPrizes();
+        
+        console.log('Euromilhões:', { numbers, stars, date, prizes });
         
         if (numbers.length >= 5 && stars.length >= 2) {
             numbers.sort((a, b) => a - b);
@@ -123,6 +101,23 @@ async function handler(req, res) {
         console.error('Erro:', error.message);
         res.status(500).json({ error: error.message });
     }
+}
+
+function getFallbackPrizes() {
+    return {
+        '5+2': 0,
+        '5+1': 0,
+        '5+0': 0,
+        '4+2': 0,
+        '4+1': 0,
+        '3+2': 0,
+        '4+0': 0,
+        '2+2': 0,
+        '3+1': 0,
+        '3+0': 0,
+        '1+2': 0,
+        '2+1': 0
+    };
 }
 
 module.exports = handler;

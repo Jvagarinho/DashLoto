@@ -1,11 +1,6 @@
 {
-  "builds": [
-    { "src": "api/euromilhoes.js", "use": "@vercel/node" },
-    { "src": "api/totoloto.js", "use": "@vercel/node" }
-  ],
-  "routes": [
-    { "src": "/api/euromilhoes", "dest": "/api/euromilhoes.js" },
-    { "src": "/api/totoloto", "dest": "/api/totoloto.js" },
-    { "src": "/(.*)", "dest": "/$1" }
+  "rewrites": [
+    { "source": "/api/euromilhoes", "destination": "/api/euromilhoes.js" },
+    { "source": "/api/totoloto", "destination": "/api/totoloto.js" }
   ]
 }

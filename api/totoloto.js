@@ -32,20 +32,28 @@ async function handler(req, res) {
         
         $('li').each((i, el) => {
             const text = $(el).text().trim();
+            console.log(`li ${i}: "${text}"`);
             
-            if (text.match(/\d\s+\d\s+\d\s+\d\s+\d\s+\+\s+\d/)) {
+            if (text.includes('+')) {
                 const parts = text.split('+');
-                const numbersPart = parts[0].trim();
-                const luckyPart = parts[1].trim();
-                
-                const nums = numbersPart.split(/\s+/).map(n => parseInt(n)).filter(n => !isNaN(n));
-                const lucky = parseInt(luckyPart);
-                
-                if (nums.length === 5) {
-                    numbers = nums;
-                }
-                if (!isNaN(lucky)) {
-                    luckyNumber = [lucky];
+                if (parts.length >= 2) {
+                    const numbersPart = parts[0].trim();
+                    const luckyPart = parts[1].trim();
+                    
+                    console.log(`  Numbers part: "${numbersPart}"`);
+                    console.log(`  Lucky part: "${luckyPart}"`);
+                    
+                    const nums = numbersPart.split(/\s+/).map(n => parseInt(n)).filter(n => !isNaN(n));
+                    const lucky = parseInt(luckyPart);
+                    
+                    console.log(`  Parsed nums: ${nums}, lucky: ${lucky}`);
+                    
+                    if (nums.length === 5) {
+                        numbers = nums;
+                    }
+                    if (!isNaN(lucky) && lucky >= 1 && lucky <= 13) {
+                        luckyNumber = [lucky];
+                    }
                 }
             }
         });

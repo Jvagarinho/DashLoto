@@ -25,9 +25,6 @@ async function handler(req, res) {
             timeout: 20000
         });
 
-        console.log('Response type:', typeof response.data);
-        console.log('Response sample:', JSON.stringify(response.data).substring(0, 500));
-        
         const $ = cheerio.load(response.data);
         
         let numbers = [];
@@ -54,13 +51,6 @@ async function handler(req, res) {
             });
         }
         
-        $('li').each((i, el) => {
-            const text = $(el).text().trim();
-            if (text.includes('€') && text.match(/\d/)) {
-                console.log(`Prize li ${i}: "${text}"`);
-            }
-        });
-        
         $('[class*="date"]').each((i, el) => {
             const text = $(el).text();
             const match = text.match(/(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})/);
@@ -69,7 +59,43 @@ async function handler(req, res) {
             }
         });
         
-        console.log('Euromilhões:', { numbers, stars, date });
+        const prizeMap = {
+            0: '5+2',
+            1: '5+1',
+            2: '5+0',
+            3: '4+2',
+            4: '4+1',
+            5: '3+2',
+            6: '4+0',
+            7: '2+2',
+            8: '3+1',
+            9: '3+0',
+            10: '1+2',
+            11: '2+1'
+        };
+        
+        const prizeElements = [];
+        $('li').each((i, el) => {
+            const text = $(el).text().trim();
+            if (text.includes('€') && text.match(/\d/)) {
+                prizeElements.push(text);
+            }
+        });
+        
+        prizeElements.forEach((text, i) => {
+            const valueStr = text.replace(/[^\d,.]/g, '').replace(/\./g, '').replace(',', '.');
+            const value = parseFloat(valueStr);
+            
+            if (!isNaN(value) && value > 0) {
+                const key = prizeMap[i];
+                if (key) {
+                    prizes[key] = value;
+                    console.log(`Prize ${key}: ${value}`);
+                }
+            }
+        });
+        
+        console.log('Euromilhões:', { numbers, stars, date, prizes });
         
         if (numbers.length >= 5 && stars.length >= 2) {
             numbers.sort((a, b) => a - b);
@@ -80,7 +106,7 @@ async function handler(req, res) {
                 numbers: [4, 26, 32, 35, 36], 
                 stars: [5, 7], 
                 date: '12/05/2026',
-                prizes: {}
+                prizes: prizes
             });
         }
     } catch (error) {

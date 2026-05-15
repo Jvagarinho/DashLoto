@@ -152,11 +152,19 @@ function calculatePrize(matchedNumbers, matchedStars) {
     let prizeTextValue = '';
     let prizeAmountValue = 0;
     
-    if (currentDraw.prizes && currentDraw.prizes[prizeKey]) {
+    console.log('Prize check:', prizeKey, currentDraw.prizes);
+    
+    if (currentDraw.prizes && currentDraw.prizes[prizeKey] !== undefined) {
         const scrapedPrize = currentDraw.prizes[prizeKey];
         prizeTextValue = fallbackPrize ? fallbackPrize.text : prizeKey;
-        prizeAmountValue = typeof scrapedPrize === 'number' ? scrapedPrize : scrapedPrize.amount;
-    } else if (fallbackPrize) {
+        if (typeof scrapedPrize === 'number') {
+            prizeAmountValue = scrapedPrize;
+        } else if (scrapedPrize && typeof scrapedPrize === 'object' && scrapedPrize.amount) {
+            prizeAmountValue = scrapedPrize.amount;
+        }
+    }
+    
+    if (prizeAmountValue === 0 && fallbackPrize) {
         prizeTextValue = fallbackPrize.text;
         prizeAmountValue = fallbackPrize.min;
     }

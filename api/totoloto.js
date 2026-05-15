@@ -51,13 +51,6 @@ async function handler(req, res) {
             });
         }
         
-        $('li').each((i, el) => {
-            const text = $(el).text().trim();
-            if (text.includes('€') && text.match(/\d/)) {
-                console.log(`Prize li ${i}: "${text}"`);
-            }
-        });
-        
         $('[class*="date"]').each((i, el) => {
             const text = $(el).text();
             const match = text.match(/(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})/);
@@ -66,7 +59,38 @@ async function handler(req, res) {
             }
         });
         
-        console.log('Totoloto:', { numbers, luckyNumber, date });
+        const prizeMap = {
+            0: '5+1',
+            1: '5+0',
+            2: '4+1',
+            3: '4+0',
+            4: '3+1',
+            5: '3+0',
+            6: '2+1'
+        };
+        
+        const prizeElements = [];
+        $('li').each((i, el) => {
+            const text = $(el).text().trim();
+            if (text.includes('€') && text.match(/\d/)) {
+                prizeElements.push(text);
+            }
+        });
+        
+        prizeElements.forEach((text, i) => {
+            const valueStr = text.replace(/[^\d,.]/g, '').replace(/\./g, '').replace(',', '.');
+            const value = parseFloat(valueStr);
+            
+            if (!isNaN(value) && value > 0) {
+                const key = prizeMap[i];
+                if (key) {
+                    prizes[key] = value;
+                    console.log(`Prize ${key}: ${value}`);
+                }
+            }
+        });
+        
+        console.log('Totoloto:', { numbers, luckyNumber, date, prizes });
         
         if (numbers.length >= 5) {
             numbers.sort((a, b) => a - b);
@@ -76,7 +100,7 @@ async function handler(req, res) {
                 numbers: [5, 7, 13, 21, 40], 
                 stars: [7], 
                 date: '13/05/2026',
-                prizes: {}
+                prizes: prizes
             });
         }
     } catch (error) {

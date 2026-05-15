@@ -58,29 +58,31 @@ async function handler(req, res) {
             }
         });
         
-        $('.stripped.betMiddle.customfiveCol.regPad table tr, .customfiveCol table tr').each((i, row) => {
+        const prizeTable = $('div.customfiveCol table, .stripped table');
+        
+        prizeTable.find('tr').each((i, row) => {
             const cells = $(row).find('td');
             if (cells.length >= 2) {
-                const category = $(cells[0]).text().trim();
-                const amount = $(cells[1]).text().trim();
+                const categoryCell = $(cells[0]).text().trim();
+                const amountCell = $(cells[1]).text().trim();
                 
-                const cleanAmount = amount.replace(/[€\s.]/g, '').replace(',', '.');
+                const cleanAmount = amountCell.replace(/[€\s.]/g, '').replace(',', '.');
                 const value = parseFloat(cleanAmount);
                 
-                if (category.toLowerCase().includes('5+1') || category.toLowerCase().includes('jackpot')) {
-                    prizes['5+1'] = { text: category, amount: value };
-                } else if (category.toLowerCase().includes('5+0')) {
-                    prizes['5+0'] = { text: category, amount: value };
-                } else if (category.toLowerCase().includes('4+1')) {
-                    prizes['4+1'] = { text: category, amount: value };
-                } else if (category.toLowerCase().includes('4+0')) {
-                    prizes['4+0'] = { text: category, amount: value };
-                } else if (category.toLowerCase().includes('3+1')) {
-                    prizes['3+1'] = { text: category, amount: value };
-                } else if (category.toLowerCase().includes('3+0')) {
-                    prizes['3+0'] = { text: category, amount: value };
-                } else if (category.toLowerCase().includes('2+1')) {
-                    prizes['2+1'] = { text: category, amount: value };
+                if (categoryCell.includes('5 + 1') || categoryCell.includes('5+1')) {
+                    prizes['5+1'] = { text: categoryCell, amount: value };
+                } else if (categoryCell.includes('5 + 0') || categoryCell.includes('5+0')) {
+                    prizes['5+0'] = { text: categoryCell, amount: value };
+                } else if (categoryCell.includes('4 + 1') || categoryCell.includes('4+1')) {
+                    prizes['4+1'] = { text: categoryCell, amount: value };
+                } else if (categoryCell.includes('4 + 0') || categoryCell.includes('4+0')) {
+                    prizes['4+0'] = { text: categoryCell, amount: value };
+                } else if (categoryCell.includes('3 + 1') || categoryCell.includes('3+1')) {
+                    prizes['3+1'] = { text: categoryCell, amount: value };
+                } else if (categoryCell.includes('3 + 0') || categoryCell.includes('3+0')) {
+                    prizes['3+0'] = { text: categoryCell, amount: value };
+                } else if (categoryCell.includes('2 + 1') || categoryCell.includes('2+1')) {
+                    prizes['2+1'] = { text: categoryCell, amount: value };
                 }
             }
         });
@@ -94,8 +96,7 @@ async function handler(req, res) {
             res.status(200).json({ 
                 numbers: [5, 7, 13, 21, 40], 
                 stars: [7], 
-                date: '13/05/2026',
-                source: 'fallback'
+                date: '13/05/2026'
             });
         }
     } catch (error) {

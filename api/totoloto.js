@@ -32,10 +32,17 @@ async function handler(req, res) {
         let date = '';
         let prizes = {};
         
-        const target = $('.betMiddle.twocol.regPad ul.colums li');
+        const columsLis = $('.betMiddle.twocol.regPad ul.colums li').toArray();
+        console.log('Found', columsLis.length, 'li elements in colums');
         
-        if (target.length > 0) {
-            target.each((i, el) => {
+        columsLis.forEach((el, i) => {
+            const text = $(el).text().trim();
+            const num = parseInt(text);
+            console.log(`Colums li ${i}: "${text}" => ${num}`);
+        });
+        
+        if (columsLis.length > 0) {
+            columsLis.forEach((el, i) => {
                 if (i >= 6) return;
                 
                 const text = $(el).text().trim();
@@ -59,12 +66,15 @@ async function handler(req, res) {
             }
         });
         
-        const prizeOrder = ['5+0', '4+1', '4+0', '3+1', '3+0', '2+1', '5+1'];
+        const prizeOrder = ['5+0', '4+1', '4+0', '3+1', '3+0', '2+1'];
         
         const prizeElements = [];
         $('li').each((i, el) => {
             const text = $(el).text().trim();
-            if (text.includes('€') && text.match(/\d/) && !text.includes('jackpot') && !text.includes('Jackpot')) {
+            const valueStr = text.replace(/[^\d,.]/g, '').replace(/\./g, '').replace(',', '.');
+            const value = parseFloat(valueStr);
+            
+            if (text.includes('€') && !isNaN(value) && value > 0 && value < 1000000) {
                 prizeElements.push(text);
             }
         });
@@ -74,7 +84,7 @@ async function handler(req, res) {
                 const valueStr = prizeElements[i].replace(/[^\d,.]/g, '').replace(/\./g, '').replace(',', '.');
                 const value = parseFloat(valueStr);
                 
-                if (!isNaN(value) && value > 0 && value < 1000000) {
+                if (!isNaN(value) && value > 0) {
                     prizes[key] = value;
                     console.log(`Prize ${key} (index ${i}): ${value}`);
                 }
@@ -82,6 +92,7 @@ async function handler(req, res) {
         });
         
         console.log('Prize elements found:', prizeElements);
+        console.log('Totoloto numbers:', numbers, 'Lucky:', luckyNumber);
         console.log('Prizes mapped:', prizes);
         
         if (numbers.length >= 5) {

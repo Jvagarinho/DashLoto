@@ -59,43 +59,34 @@ async function handler(req, res) {
             }
         });
         
-        const prizeMap = {
-            0: '5+2',
-            1: '5+1',
-            2: '5+0',
-            3: '4+2',
-            4: '4+1',
-            5: '3+2',
-            6: '4+0',
-            7: '2+2',
-            8: '3+1',
-            9: '3+0',
-            10: '1+2',
-            11: '2+1'
-        };
+        const prizeOrder = [
+            '5+2', '5+1', '5+0', '4+2', '4+1',
+            '3+2', '4+0', '2+2', '3+1', '3+0',
+            '1+2', '2+1'
+        ];
         
         const prizeElements = [];
         $('li').each((i, el) => {
             const text = $(el).text().trim();
-            if (text.includes('€') && text.match(/\d/)) {
+            if (text.includes('€') && text.match(/\d/) && !text.includes('jackpot') && !text.includes('Jackpot')) {
                 prizeElements.push(text);
             }
         });
         
-        prizeElements.forEach((text, i) => {
-            const valueStr = text.replace(/[^\d,.]/g, '').replace(/\./g, '').replace(',', '.');
-            const value = parseFloat(valueStr);
-            
-            if (!isNaN(value) && value > 0) {
-                const key = prizeMap[i];
-                if (key) {
+        prizeOrder.forEach((key, i) => {
+            if (prizeElements[i]) {
+                const valueStr = prizeElements[i].replace(/[^\d,.]/g, '').replace(/\./g, '').replace(',', '.');
+                const value = parseFloat(valueStr);
+                
+                if (!isNaN(value) && value > 0) {
                     prizes[key] = value;
-                    console.log(`Prize ${key}: ${value}`);
+                    console.log(`Prize ${key} (index ${i}): ${value} from "${prizeElements[i]}"`);
                 }
             }
         });
         
-        console.log('Euromilhões:', { numbers, stars, date, prizes });
+        console.log('Prize elements found:', prizeElements.length, prizeElements);
+        console.log('Euromilhões prizes:', prizes);
         
         if (numbers.length >= 5 && stars.length >= 2) {
             numbers.sort((a, b) => a - b);

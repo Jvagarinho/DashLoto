@@ -59,38 +59,30 @@ async function handler(req, res) {
             }
         });
         
-        const prizeMap = {
-            0: '5+1',
-            1: '5+0',
-            2: '4+1',
-            3: '4+0',
-            4: '3+1',
-            5: '3+0',
-            6: '2+1'
-        };
+        const prizeOrder = ['5+1', '5+0', '4+1', '4+0', '3+1', '3+0', '2+1'];
         
         const prizeElements = [];
         $('li').each((i, el) => {
             const text = $(el).text().trim();
-            if (text.includes('€') && text.match(/\d/)) {
+            if (text.includes('€') && text.match(/\d/) && !text.includes('jackpot') && !text.includes('Jackpot')) {
                 prizeElements.push(text);
             }
         });
         
-        prizeElements.forEach((text, i) => {
-            const valueStr = text.replace(/[^\d,.]/g, '').replace(/\./g, '').replace(',', '.');
-            const value = parseFloat(valueStr);
-            
-            if (!isNaN(value) && value > 0) {
-                const key = prizeMap[i];
-                if (key) {
+        prizeOrder.forEach((key, i) => {
+            if (prizeElements[i]) {
+                const valueStr = prizeElements[i].replace(/[^\d,.]/g, '').replace(/\./g, '').replace(',', '.');
+                const value = parseFloat(valueStr);
+                
+                if (!isNaN(value) && value > 0) {
                     prizes[key] = value;
-                    console.log(`Prize ${key}: ${value}`);
+                    console.log(`Prize ${key} (index ${i}): ${value} from "${prizeElements[i]}"`);
                 }
             }
         });
         
-        console.log('Totoloto:', { numbers, luckyNumber, date, prizes });
+        console.log('Prize elements found:', prizeElements.length, prizeElements);
+        console.log('Totoloto prizes:', prizes);
         
         if (numbers.length >= 5) {
             numbers.sort((a, b) => a - b);

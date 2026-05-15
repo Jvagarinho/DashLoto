@@ -30,31 +30,19 @@ async function handler(req, res) {
         let luckyNumber = [];
         let prizes = {};
         
+        const liElements = [];
         $('li').each((i, el) => {
             const text = $(el).text().trim();
-            console.log(`li ${i}: "${text}"`);
-            
-            if (text.includes('+')) {
-                const parts = text.split('+');
-                if (parts.length >= 2) {
-                    const numbersPart = parts[0].trim();
-                    const luckyPart = parts[1].trim();
-                    
-                    console.log(`  Numbers part: "${numbersPart}"`);
-                    console.log(`  Lucky part: "${luckyPart}"`);
-                    
-                    const nums = numbersPart.split(/\s+/).map(n => parseInt(n)).filter(n => !isNaN(n));
-                    const lucky = parseInt(luckyPart);
-                    
-                    console.log(`  Parsed nums: ${nums}, lucky: ${lucky}`);
-                    
-                    if (nums.length === 5) {
-                        numbers = nums;
-                    }
-                    if (!isNaN(lucky) && lucky >= 1 && lucky <= 13) {
-                        luckyNumber = [lucky];
-                    }
-                }
+            if (text && text.length < 100) {
+                liElements.push({ i, text });
+            }
+        });
+        
+        console.log('All li elements:', JSON.stringify(liElements));
+        
+        liElements.forEach(item => {
+            if (item.text.includes('+') || (item.text.match(/\d/) && !item.text.includes('Prémio') && !item.text.includes('€'))) {
+                console.log(`Found relevant: ${item.i}: "${item.text}"`);
             }
         });
         
@@ -81,7 +69,8 @@ async function handler(req, res) {
         res.status(200).json({ 
             numbers, 
             stars: luckyNumber, 
-            prizes 
+            prizes,
+            debug: liElements.slice(0, 30)
         });
         
     } catch (error) {

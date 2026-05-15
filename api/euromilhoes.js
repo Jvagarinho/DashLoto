@@ -17,9 +17,9 @@ async function handler(req, res) {
         
         const response = await axios.get(BASE_URL + '/', {
             headers: {
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9',
-                'Accept-Language': 'pt-PT,pt;q=0.9,en;q=0.8'
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+                'Accept': 'text/html,application/xhtml+xml',
+                'Accept-Language': 'pt-PT,pt;q=0.9'
             },
             timeout: 20000
         });
@@ -58,30 +58,18 @@ async function handler(req, res) {
             }
         });
         
-        let allText = $.html();
-        
-        const jsonMatch = allText.match(/window\.appData\s*=\s*(\{.*?\});/s) ||
-                        allText.match(/__PRELOADED_STATE__\s*=\s*(\{.*?});/s) ||
-                        allText.match(/data\s*=\s*(\{.*?});/s);
-        
-        if (jsonMatch) {
-            console.log('Encontrou dados JSON no HTML');
-        }
-        
-        const scriptTags = $('script').toArray();
-        scriptTags.forEach((script, idx) => {
-            const text = $(script).html() || '';
-            if (text.includes('prize') || text.includes('prémio') || text.includes('amount')) {
-                console.log(`Script ${idx} contém prize data`);
+        $('li').each((i, el) => {
+            const text = $(el).text().trim();
+            
+            if (text.includes('€') || text.match(/\d+[\d.,]*€/)) {
+                const valueMatch = text.replace(/[^\d,.]/g, '').replace(/\./g, '').replace(',', '.');
+                const value = parseFloat(valueMatch);
+                
+                if (!isNaN(value) && value > 0 && value < 100000000) {
+                    console.log(`Prize li ${i}: "${text}" => ${value}`);
+                }
             }
         });
-        
-        $('*').each((i, el) => {
-            const text = $(el).text();
-            const match = text.match(/(\d{1,2})\s*\+\s*(\d)\s*(estrelas?|stars?)/i);
-        });
-        
-        prizes = getFallbackPrizes();
         
         console.log('Euromilhões:', { numbers, stars, date, prizes });
         
@@ -94,30 +82,13 @@ async function handler(req, res) {
                 numbers: [4, 26, 32, 35, 36], 
                 stars: [5, 7], 
                 date: '12/05/2026',
-                prizes: prizes
+                prizes: {}
             });
         }
     } catch (error) {
         console.error('Erro:', error.message);
         res.status(500).json({ error: error.message });
     }
-}
-
-function getFallbackPrizes() {
-    return {
-        '5+2': 0,
-        '5+1': 0,
-        '5+0': 0,
-        '4+2': 0,
-        '4+1': 0,
-        '3+2': 0,
-        '4+0': 0,
-        '2+2': 0,
-        '3+1': 0,
-        '3+0': 0,
-        '1+2': 0,
-        '2+1': 0
-    };
 }
 
 module.exports = handler;

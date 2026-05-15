@@ -30,23 +30,23 @@ async function handler(req, res) {
         let luckyNumber = [];
         let prizes = {};
         
-        const betMiddle = $('div.betMiddle.twocol.regPad');
-        const allLis = betMiddle.find('li').toArray();
-        
-        console.log('li elements in betMiddle:', allLis.length);
-        
-        allLis.forEach((el, i) => {
+        $('li').each((i, el) => {
             const text = $(el).text().trim();
-            const num = parseInt(text);
-            console.log(`li ${i}: "${text}" => ${num}`);
-        });
-        
-        allLis.forEach((el) => {
-            const text = $(el).text().trim();
-            const num = parseInt(text);
             
-            if (!isNaN(num) && num >= 1 && num <= 49 && !numbers.includes(num) && numbers.length < 5) {
-                numbers.push(num);
+            if (text.match(/\d\s+\d\s+\d\s+\d\s+\d\s+\+\s+\d/)) {
+                const parts = text.split('+');
+                const numbersPart = parts[0].trim();
+                const luckyPart = parts[1].trim();
+                
+                const nums = numbersPart.split(/\s+/).map(n => parseInt(n)).filter(n => !isNaN(n));
+                const lucky = parseInt(luckyPart);
+                
+                if (nums.length === 5) {
+                    numbers = nums;
+                }
+                if (!isNaN(lucky)) {
+                    luckyNumber = [lucky];
+                }
             }
         });
         
@@ -69,7 +69,6 @@ async function handler(req, res) {
         });
         
         console.log('Final numbers:', numbers, 'Lucky:', luckyNumber);
-        console.log('Prize elements:', prizeElements.map(p => p.text));
         
         res.status(200).json({ 
             numbers, 
@@ -82,7 +81,6 @@ async function handler(req, res) {
         res.status(200).json({ 
             numbers: [5, 7, 13, 21, 40], 
             stars: [7], 
-            date: '13/05/2026',
             prizes: {}
         });
     }

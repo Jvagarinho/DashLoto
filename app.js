@@ -154,8 +154,8 @@ function calculatePrize(matchedNumbers, matchedStars) {
     
     if (currentDraw.prizes && currentDraw.prizes[prizeKey]) {
         const scrapedPrize = currentDraw.prizes[prizeKey];
-        prizeTextValue = scrapedPrize.text;
-        prizeAmountValue = scrapedPrize.amount;
+        prizeTextValue = fallbackPrize ? fallbackPrize.text : prizeKey;
+        prizeAmountValue = typeof scrapedPrize === 'number' ? scrapedPrize : scrapedPrize.amount;
     } else if (fallbackPrize) {
         prizeTextValue = fallbackPrize.text;
         prizeAmountValue = fallbackPrize.min;

@@ -58,38 +58,40 @@ async function handler(req, res) {
             }
         });
         
-        $('.customfiveCol.regPad table tr, .stripped table tr').each((i, row) => {
+        $('table tr').each((i, row) => {
             const cells = $(row).find('td');
             if (cells.length >= 2) {
-                const categoryCell = $(cells[0]).text().trim();
-                const amountCell = $(cells[1]).text().trim();
+                let categoryCell = $(cells[0]).text().trim();
+                let amountCell = $(cells[1]).text().trim();
                 
                 let value = 0;
-                const numMatch = amountCell.replace(/\s/g, '').match(/[\d.,]+/);
+                const cleanedAmount = amountCell.replace(/[^\d,.]/g, '').replace(/\./g, '').replace(',', '.');
+                const numMatch = cleanedAmount.match(/[\d.]+/);
                 if (numMatch) {
-                    const cleanNum = numMatch[0].replace(/\./g, '').replace(',', '.');
-                    value = parseFloat(cleanNum);
+                    value = parseFloat(numMatch[0]);
                 }
                 
-                if (categoryCell.includes('5 + 1') || categoryCell.includes('5+1')) {
-                    prizes['5+1'] = { text: categoryCell, amount: value };
-                } else if (categoryCell.includes('5 + 0') || categoryCell.includes('5+0')) {
-                    prizes['5+0'] = { text: categoryCell, amount: value };
-                } else if (categoryCell.includes('4 + 1') || categoryCell.includes('4+1')) {
-                    prizes['4+1'] = { text: categoryCell, amount: value };
-                } else if (categoryCell.includes('4 + 0') || categoryCell.includes('4+0')) {
-                    prizes['4+0'] = { text: categoryCell, amount: value };
-                } else if (categoryCell.includes('3 + 1') || categoryCell.includes('3+1')) {
-                    prizes['3+1'] = { text: categoryCell, amount: value };
-                } else if (categoryCell.includes('3 + 0') || categoryCell.includes('3+0')) {
-                    prizes['3+0'] = { text: categoryCell, amount: value };
-                } else if (categoryCell.includes('2 + 1') || categoryCell.includes('2+1')) {
-                    prizes['2+1'] = { text: categoryCell, amount: value };
+                categoryCell = categoryCell.toLowerCase();
+                
+                if (categoryCell.includes('5') && categoryCell.includes('1')) {
+                    prizes['5+1'] = value;
+                } else if (categoryCell.includes('5') && categoryCell.includes('0')) {
+                    prizes['5+0'] = value;
+                } else if (categoryCell.includes('4') && categoryCell.includes('1')) {
+                    prizes['4+1'] = value;
+                } else if (categoryCell.includes('4') && categoryCell.includes('0')) {
+                    prizes['4+0'] = value;
+                } else if (categoryCell.includes('3') && categoryCell.includes('1')) {
+                    prizes['3+1'] = value;
+                } else if (categoryCell.includes('3') && categoryCell.includes('0')) {
+                    prizes['3+0'] = value;
+                } else if (categoryCell.includes('2') && categoryCell.includes('1')) {
+                    prizes['2+1'] = value;
                 }
             }
         });
         
-        console.log('Totoloto prizes found:', prizes);
+        console.log('Totoloto Prémios:', prizes);
         
         if (numbers.length >= 5) {
             numbers.sort((a, b) => a - b);

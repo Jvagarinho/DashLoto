@@ -13,14 +13,13 @@ async function handler(req, res) {
     }
     
     try {
-        console.log('Fetching Totoloto via API...');
+        console.log('Fetching Totoloto via API (GET)...');
         
-        const response = await axios.post(BASE_URL + '/totolotoNew', {}, {
+        const response = await axios.get(BASE_URL + '/totolotoNew', {
             headers: {
                 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
                 'Accept': 'text/html,application/xhtml+xml',
-                'Accept-Language': 'pt-PT,pt;q=0.9',
-                'Content-Type': 'application/x-www-form-urlencoded'
+                'Accept-Language': 'pt-PT,pt;q=0.9'
             },
             timeout: 20000
         });
@@ -34,12 +33,6 @@ async function handler(req, res) {
         
         const columsLis = $('.betMiddle.twocol.regPad ul.colums li').toArray();
         console.log('Found', columsLis.length, 'li elements in colums');
-        
-        columsLis.forEach((el, i) => {
-            const text = $(el).text().trim();
-            const num = parseInt(text);
-            console.log(`Colums li ${i}: "${text}" => ${num}`);
-        });
         
         if (columsLis.length > 0) {
             columsLis.forEach((el, i) => {

@@ -31,24 +31,29 @@ async function handler(req, res) {
         let date = '';
         let prizes = {};
         
-        const columsLis = $('.betMiddle.twocol.regPad ul.colums li').toArray();
-        console.log('Found', columsLis.length, 'li elements in colums');
+        const allLis = $('ul.colums li').toArray();
+        console.log('All ul.colums li found:', allLis.length);
         
-        if (columsLis.length > 0) {
-            columsLis.forEach((el, i) => {
-                if (i >= 6) return;
-                
-                const text = $(el).text().trim();
+        allLis.forEach((el, i) => {
+            const text = $(el).text().trim();
+            console.log(`ul.colums li ${i}: "${text}"`);
+        });
+        
+        if (allLis.length >= 6) {
+            for (let i = 0; i < 6; i++) {
+                const text = $(allLis[i]).text().trim();
                 const num = parseInt(text);
                 
-                if (!isNaN(num) && !numbers.includes(num) && !luckyNumber.includes(num)) {
-                    if (numbers.length < 5 && num >= 1 && num <= 49) {
-                        numbers.push(num);
-                    } else if (luckyNumber.length < 1 && num >= 1 && num <= 13) {
+                if (!isNaN(num) && num >= 1 && num <= 49) {
+                    numbers.push(num);
+                } else if (!isNaN(num) && num >= 1 && num <= 13) {
+                    if (numbers.length >= 5) {
                         luckyNumber.push(num);
+                    } else {
+                        numbers.push(num);
                     }
                 }
-            });
+            }
         }
         
         $('[class*="date"]').each((i, el) => {
@@ -68,25 +73,20 @@ async function handler(req, res) {
             const value = parseFloat(valueStr);
             
             if (text.includes('€') && !isNaN(value) && value > 0 && value < 1000000) {
-                prizeElements.push(text);
+                prizeElements.push({ text, value });
             }
         });
+        
+        console.log('Prize elements found:', prizeElements.map(p => p.text));
         
         prizeOrder.forEach((key, i) => {
             if (prizeElements[i]) {
-                const valueStr = prizeElements[i].replace(/[^\d,.]/g, '').replace(/\./g, '').replace(',', '.');
-                const value = parseFloat(valueStr);
-                
-                if (!isNaN(value) && value > 0) {
-                    prizes[key] = value;
-                    console.log(`Prize ${key} (index ${i}): ${value}`);
-                }
+                prizes[key] = prizeElements[i].value;
+                console.log(`Prize ${key} (index ${i}): ${prizeElements[i].value}`);
             }
         });
         
-        console.log('Prize elements found:', prizeElements);
         console.log('Totoloto numbers:', numbers, 'Lucky:', luckyNumber);
-        console.log('Prizes mapped:', prizes);
         
         if (numbers.length >= 5) {
             numbers.sort((a, b) => a - b);

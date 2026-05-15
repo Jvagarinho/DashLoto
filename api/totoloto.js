@@ -13,13 +13,14 @@ async function handler(req, res) {
     }
     
     try {
-        console.log('Scraping Totoloto...');
+        console.log('Fetching Totoloto via API...');
         
-        const response = await axios.get(BASE_URL + '/totolotoNew', {
+        const response = await axios.post(BASE_URL + '/totolotoNew', {}, {
             headers: {
                 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
                 'Accept': 'text/html,application/xhtml+xml',
-                'Accept-Language': 'pt-PT,pt;q=0.9'
+                'Accept-Language': 'pt-PT,pt;q=0.9',
+                'Content-Type': 'application/x-www-form-urlencoded'
             },
             timeout: 20000
         });
@@ -50,6 +51,13 @@ async function handler(req, res) {
             });
         }
         
+        $('li').each((i, el) => {
+            const text = $(el).text().trim();
+            if (text.includes('€') && text.match(/\d/)) {
+                console.log(`Prize li ${i}: "${text}"`);
+            }
+        });
+        
         $('[class*="date"]').each((i, el) => {
             const text = $(el).text();
             const match = text.match(/(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})/);
@@ -58,42 +66,7 @@ async function handler(req, res) {
             }
         });
         
-        $('table tr').each((i, row) => {
-            const cells = $(row).find('td');
-            if (cells.length >= 2) {
-                let categoryCell = $(cells[0]).text().trim();
-                let amountCell = $(cells[1]).text().trim();
-                
-                let value = 0;
-                const cleanedAmount = amountCell.replace(/[^\d,.]/g, '').replace(/\./g, '').replace(',', '.');
-                const numMatch = cleanedAmount.match(/[\d.]+/);
-                if (numMatch) {
-                    value = parseFloat(numMatch[0]);
-                }
-                
-                categoryCell = categoryCell.toLowerCase();
-                
-                if (categoryCell.includes('5') && categoryCell.includes('1')) {
-                    prizes['5+1'] = value;
-                } else if (categoryCell.includes('5') && categoryCell.includes('0')) {
-                    prizes['5+0'] = value;
-                } else if (categoryCell.includes('4') && categoryCell.includes('1')) {
-                    prizes['4+1'] = value;
-                } else if (categoryCell.includes('4') && categoryCell.includes('0')) {
-                    prizes['4+0'] = value;
-                } else if (categoryCell.includes('3') && categoryCell.includes('1')) {
-                    prizes['3+1'] = value;
-                } else if (categoryCell.includes('3') && categoryCell.includes('0')) {
-                    prizes['3+0'] = value;
-                } else if (categoryCell.includes('2') && categoryCell.includes('1')) {
-                    prizes['2+1'] = value;
-                }
-                
-                console.log(`Row ${i}: "${categoryCell}" => ${amountCell} (parsed: ${value})`);
-            }
-        });
-        
-        console.log('Totoloto Prémios:', prizes);
+        console.log('Totoloto:', { numbers, luckyNumber, date });
         
         if (numbers.length >= 5) {
             numbers.sort((a, b) => a - b);
@@ -103,7 +76,7 @@ async function handler(req, res) {
                 numbers: [5, 7, 13, 21, 40], 
                 stars: [7], 
                 date: '13/05/2026',
-                prizes: prizes
+                prizes: {}
             });
         }
     } catch (error) {

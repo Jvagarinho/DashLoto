@@ -13,17 +13,21 @@ async function handler(req, res) {
     }
     
     try {
-        console.log('Scraping Euromilhões...');
+        console.log('Fetching Euromilhões via API...');
         
-        const response = await axios.get(BASE_URL + '/', {
+        const response = await axios.post(BASE_URL + '/euroMilhoes', {}, {
             headers: {
                 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
                 'Accept': 'text/html,application/xhtml+xml',
-                'Accept-Language': 'pt-PT,pt;q=0.9'
+                'Accept-Language': 'pt-PT,pt;q=0.9',
+                'Content-Type': 'application/x-www-form-urlencoded'
             },
             timeout: 20000
         });
 
+        console.log('Response type:', typeof response.data);
+        console.log('Response sample:', JSON.stringify(response.data).substring(0, 500));
+        
         const $ = cheerio.load(response.data);
         
         let numbers = [];
@@ -50,6 +54,13 @@ async function handler(req, res) {
             });
         }
         
+        $('li').each((i, el) => {
+            const text = $(el).text().trim();
+            if (text.includes('€') && text.match(/\d/)) {
+                console.log(`Prize li ${i}: "${text}"`);
+            }
+        });
+        
         $('[class*="date"]').each((i, el) => {
             const text = $(el).text();
             const match = text.match(/(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})/);
@@ -58,20 +69,7 @@ async function handler(req, res) {
             }
         });
         
-        $('li').each((i, el) => {
-            const text = $(el).text().trim();
-            
-            if (text.includes('€') || text.match(/\d+[\d.,]*€/)) {
-                const valueMatch = text.replace(/[^\d,.]/g, '').replace(/\./g, '').replace(',', '.');
-                const value = parseFloat(valueMatch);
-                
-                if (!isNaN(value) && value > 0 && value < 100000000) {
-                    console.log(`Prize li ${i}: "${text}" => ${value}`);
-                }
-            }
-        });
-        
-        console.log('Euromilhões:', { numbers, stars, date, prizes });
+        console.log('Euromilhões:', { numbers, stars, date });
         
         if (numbers.length >= 5 && stars.length >= 2) {
             numbers.sort((a, b) => a - b);

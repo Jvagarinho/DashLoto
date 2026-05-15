@@ -58,18 +58,20 @@ async function handler(req, res) {
             }
         });
         
-        const prizeTable = $('div.customfiveCol table, .stripped table');
-        
-        prizeTable.find('tr').each((i, row) => {
+        $('.customfiveCol.regPad table tr, .stripped table tr').each((i, row) => {
             const cells = $(row).find('td');
             if (cells.length >= 2) {
                 const categoryCell = $(cells[0]).text().trim();
                 const amountCell = $(cells[1]).text().trim();
                 
-                const cleanAmount = amountCell.replace(/[€\s.]/g, '').replace(',', '.');
-                const value = parseFloat(cleanAmount);
+                let value = 0;
+                const numMatch = amountCell.replace(/\s/g, '').match(/[\d.,]+/);
+                if (numMatch) {
+                    const cleanNum = numMatch[0].replace(/\./g, '').replace(',', '.');
+                    value = parseFloat(cleanNum);
+                }
                 
-                if (categoryCell.includes('5 + 2') || categoryCell.includes('5+2')) {
+                if (categoryCell.includes('5 + 2') || categoryCell.includes('5+2') || categoryCell.includes('5 ESTRELAS')) {
                     prizes['5+2'] = { text: categoryCell, amount: value };
                 } else if (categoryCell.includes('5 + 1') || categoryCell.includes('5+1')) {
                     prizes['5+1'] = { text: categoryCell, amount: value };
@@ -97,7 +99,7 @@ async function handler(req, res) {
             }
         });
         
-        console.log('Euromilhões:', { numbers, stars, date, prizes });
+        console.log('Euromilhões prizes found:', prizes);
         
         if (numbers.length >= 5 && stars.length >= 2) {
             numbers.sort((a, b) => a - b);
@@ -107,7 +109,8 @@ async function handler(req, res) {
             res.status(200).json({ 
                 numbers: [4, 26, 32, 35, 36], 
                 stars: [5, 7], 
-                date: '12/05/2026'
+                date: '12/05/2026',
+                prizes: {}
             });
         }
     } catch (error) {

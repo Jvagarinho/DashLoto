@@ -58,16 +58,18 @@ async function handler(req, res) {
             }
         });
         
-        const prizeTable = $('div.customfiveCol table, .stripped table');
-        
-        prizeTable.find('tr').each((i, row) => {
+        $('.customfiveCol.regPad table tr, .stripped table tr').each((i, row) => {
             const cells = $(row).find('td');
             if (cells.length >= 2) {
                 const categoryCell = $(cells[0]).text().trim();
                 const amountCell = $(cells[1]).text().trim();
                 
-                const cleanAmount = amountCell.replace(/[€\s.]/g, '').replace(',', '.');
-                const value = parseFloat(cleanAmount);
+                let value = 0;
+                const numMatch = amountCell.replace(/\s/g, '').match(/[\d.,]+/);
+                if (numMatch) {
+                    const cleanNum = numMatch[0].replace(/\./g, '').replace(',', '.');
+                    value = parseFloat(cleanNum);
+                }
                 
                 if (categoryCell.includes('5 + 1') || categoryCell.includes('5+1')) {
                     prizes['5+1'] = { text: categoryCell, amount: value };
@@ -87,7 +89,7 @@ async function handler(req, res) {
             }
         });
         
-        console.log('Totoloto:', { numbers, luckyNumber, date, prizes });
+        console.log('Totoloto prizes found:', prizes);
         
         if (numbers.length >= 5) {
             numbers.sort((a, b) => a - b);
@@ -96,7 +98,8 @@ async function handler(req, res) {
             res.status(200).json({ 
                 numbers: [5, 7, 13, 21, 40], 
                 stars: [7], 
-                date: '13/05/2026'
+                date: '13/05/2026',
+                prizes: {}
             });
         }
     } catch (error) {

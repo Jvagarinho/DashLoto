@@ -13,7 +13,7 @@ async function handler(req, res) {
     }
     
     try {
-        console.log('1. Starting Totoloto fetch...');
+        console.log('Fetching Totoloto...');
         
         const response = await axios.get(BASE_URL + '/totolotoNew', {
             headers: {
@@ -24,22 +24,21 @@ async function handler(req, res) {
             timeout: 30000
         });
 
-        console.log('2. Response received, parsing...');
-
         const $ = cheerio.load(response.data);
         
         let numbers = [];
         let luckyNumber = [];
-        let date = '';
         let prizes = {};
         
-        const allLis = $('ul.colums li').toArray();
-        console.log('3. Total ul.colums li elements:', allLis.length);
+        const betMiddle = $('div.betMiddle.twocol.regPad');
+        const allLis = betMiddle.find('li').toArray();
+        
+        console.log('li elements in betMiddle:', allLis.length);
         
         allLis.forEach((el, i) => {
             const text = $(el).text().trim();
             const num = parseInt(text);
-            console.log(`  li ${i}: "${text}" => ${num}`);
+            console.log(`li ${i}: "${text}" => ${num}`);
         });
         
         allLis.forEach((el) => {
@@ -62,9 +61,6 @@ async function handler(req, res) {
             }
         });
         
-        console.log('4. Numbers after dedup:', numbers);
-        console.log('5. Prize elements:', prizeElements.map(p => p.text));
-        
         const prizeOrder = ['5+0', '4+1', '4+0', '3+1', '3+0', '2+1'];
         prizeOrder.forEach((key, i) => {
             if (prizeElements[i]) {
@@ -72,12 +68,12 @@ async function handler(req, res) {
             }
         });
         
-        console.log('6. Final numbers:', numbers, 'Lucky:', luckyNumber);
+        console.log('Final numbers:', numbers, 'Lucky:', luckyNumber);
+        console.log('Prize elements:', prizeElements.map(p => p.text));
         
         res.status(200).json({ 
             numbers, 
             stars: luckyNumber, 
-            date, 
             prizes 
         });
         
@@ -87,8 +83,7 @@ async function handler(req, res) {
             numbers: [5, 7, 13, 21, 40], 
             stars: [7], 
             date: '13/05/2026',
-            prizes: {},
-            error: error.message
+            prizes: {}
         });
     }
 }

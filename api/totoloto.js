@@ -28,7 +28,8 @@ async function handler(req, res) {
         
         let numbers = [];
         let luckyNumber = [];
-        let date = '13/05/2026';
+        let date = '';
+        let prizes = {};
         
         const target = $('.betMiddle.twocol.regPad ul.colums li');
         
@@ -49,11 +50,46 @@ async function handler(req, res) {
             });
         }
         
-        console.log('Totoloto extraídos:', { numbers, luckyNumber });
+        $('[class*="date"]').each((i, el) => {
+            const text = $(el).text();
+            const match = text.match(/(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})/);
+            if (match && !date) {
+                date = `${match[1]}/${match[2]}/${match[3]}`;
+            }
+        });
+        
+        $('.stripped.betMiddle.customfiveCol.regPad table tr, .customfiveCol table tr').each((i, row) => {
+            const cells = $(row).find('td');
+            if (cells.length >= 2) {
+                const category = $(cells[0]).text().trim();
+                const amount = $(cells[1]).text().trim();
+                
+                const cleanAmount = amount.replace(/[€\s.]/g, '').replace(',', '.');
+                const value = parseFloat(cleanAmount);
+                
+                if (category.toLowerCase().includes('5+1') || category.toLowerCase().includes('jackpot')) {
+                    prizes['5+1'] = { text: category, amount: value };
+                } else if (category.toLowerCase().includes('5+0')) {
+                    prizes['5+0'] = { text: category, amount: value };
+                } else if (category.toLowerCase().includes('4+1')) {
+                    prizes['4+1'] = { text: category, amount: value };
+                } else if (category.toLowerCase().includes('4+0')) {
+                    prizes['4+0'] = { text: category, amount: value };
+                } else if (category.toLowerCase().includes('3+1')) {
+                    prizes['3+1'] = { text: category, amount: value };
+                } else if (category.toLowerCase().includes('3+0')) {
+                    prizes['3+0'] = { text: category, amount: value };
+                } else if (category.toLowerCase().includes('2+1')) {
+                    prizes['2+1'] = { text: category, amount: value };
+                }
+            }
+        });
+        
+        console.log('Totoloto:', { numbers, luckyNumber, date, prizes });
         
         if (numbers.length >= 5) {
             numbers.sort((a, b) => a - b);
-            res.status(200).json({ numbers, stars: luckyNumber, date });
+            res.status(200).json({ numbers, stars: luckyNumber, date, prizes });
         } else {
             res.status(200).json({ 
                 numbers: [5, 7, 13, 21, 40], 
@@ -64,12 +100,7 @@ async function handler(req, res) {
         }
     } catch (error) {
         console.error('Erro:', error.message);
-        res.status(200).json({ 
-            numbers: [5, 7, 13, 21, 40], 
-            stars: [7], 
-            date: '13/05/2026',
-            source: 'fallback'
-        });
+        res.status(500).json({ error: error.message });
     }
 }
 

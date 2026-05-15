@@ -28,7 +28,8 @@ async function handler(req, res) {
         
         let numbers = [];
         let stars = [];
-        let date = '12/05/2026';
+        let date = '';
+        let prizes = {};
         
         const target = $('.betMiddle.twocol.regPad ul.colums li');
         
@@ -40,7 +41,7 @@ async function handler(req, res) {
                 const num = parseInt(text);
                 
                 if (!isNaN(num) && num >= 1 && num <= 50 && !numbers.includes(num) && !stars.includes(num)) {
-                    if (numbers.length < 5 && num <= 50) {
+                    if (numbers.length < 5) {
                         numbers.push(num);
                     } else if (stars.length < 2 && num <= 12) {
                         stars.push(num);
@@ -49,12 +50,57 @@ async function handler(req, res) {
             });
         }
         
-        console.log('Euromilhões extraídos:', { numbers, stars });
+        $('[class*="date"]').each((i, el) => {
+            const text = $(el).text();
+            const match = text.match(/(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})/);
+            if (match && !date) {
+                date = `${match[1]}/${match[2]}/${match[3]}`;
+            }
+        });
+        
+        $('.stripped.betMiddle.customfiveCol.regPad table tr, .customfiveCol tr').each((i, row) => {
+            const cells = $(row).find('td');
+            if (cells.length >= 2) {
+                const category = $(cells[0]).text().trim();
+                const amount = $(cells[1]).text().trim();
+                
+                const cleanAmount = amount.replace(/[€\s.]/g, '').replace(',', '.');
+                const value = parseFloat(cleanAmount);
+                
+                if (category.toLowerCase().includes('5+2') || category.toLowerCase().includes('jackpot')) {
+                    prizes['5+2'] = { text: category, amount: value };
+                } else if (category.toLowerCase().includes('5+1')) {
+                    prizes['5+1'] = { text: category, amount: value };
+                } else if (category.toLowerCase().includes('5+0')) {
+                    prizes['5+0'] = { text: category, amount: value };
+                } else if (category.toLowerCase().includes('4+2')) {
+                    prizes['4+2'] = { text: category, amount: value };
+                } else if (category.toLowerCase().includes('4+1')) {
+                    prizes['4+1'] = { text: category, amount: value };
+                } else if (category.toLowerCase().includes('4+0')) {
+                    prizes['4+0'] = { text: category, amount: value };
+                } else if (category.toLowerCase().includes('3+2')) {
+                    prizes['3+2'] = { text: category, amount: value };
+                } else if (category.toLowerCase().includes('3+1')) {
+                    prizes['3+1'] = { text: category, amount: value };
+                } else if (category.toLowerCase().includes('3+0')) {
+                    prizes['3+0'] = { text: category, amount: value };
+                } else if (category.toLowerCase().includes('2+2')) {
+                    prizes['2+2'] = { text: category, amount: value };
+                } else if (category.toLowerCase().includes('2+1')) {
+                    prizes['2+1'] = { text: category, amount: value };
+                } else if (category.toLowerCase().includes('1+2')) {
+                    prizes['1+2'] = { text: category, amount: value };
+                }
+            }
+        });
+        
+        console.log('Euromilhões:', { numbers, stars, date, prizes });
         
         if (numbers.length >= 5 && stars.length >= 2) {
             numbers.sort((a, b) => a - b);
             stars.sort((a, b) => a - b);
-            res.status(200).json({ numbers, stars, date });
+            res.status(200).json({ numbers, stars, date, prizes });
         } else {
             res.status(200).json({ 
                 numbers: [4, 26, 32, 35, 36], 
@@ -65,12 +111,7 @@ async function handler(req, res) {
         }
     } catch (error) {
         console.error('Erro:', error.message);
-        res.status(200).json({ 
-            numbers: [4, 26, 32, 35, 36], 
-            stars: [5, 7], 
-            date: '12/05/2026',
-            source: 'fallback'
-        });
+        res.status(500).json({ error: error.message });
     }
 }
 

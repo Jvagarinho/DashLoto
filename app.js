@@ -75,7 +75,8 @@ async function fetchDrawResults() {
         return {
             numbers: data.numbers,
             stars: data.stars,
-            date: dateObj
+            date: dateObj,
+            prizes: data.prizes || null
         };
     } catch (error) {
         console.log('Erro ao obter dados:', error.message);
@@ -143,20 +144,27 @@ function calculatePrize(matchedNumbers, matchedStars) {
     const prizeText = document.getElementById('prize-text');
     const prizeAmount = document.getElementById('prize-amount');
     
-    let prizeKey;
-    if (currentGame === 'euromilhoes') {
-        prizeKey = `${matchedNumbers}+${matchedStars}`;
-    } else {
-        prizeKey = `${matchedNumbers}+${matchedStars}`;
-    }
+    const prizeKey = `${matchedNumbers}+${matchedStars}`;
     
     const prizeTable = PRIZE_TABLES[currentGame];
-    const prize = prizeTable[prizeKey];
+    const fallbackPrize = prizeTable[prizeKey];
     
-    if (prize) {
+    let prizeTextValue = '';
+    let prizeAmountValue = 0;
+    
+    if (currentDraw.prizes && currentDraw.prizes[prizeKey]) {
+        const scrapedPrize = currentDraw.prizes[prizeKey];
+        prizeTextValue = scrapedPrize.text;
+        prizeAmountValue = scrapedPrize.amount;
+    } else if (fallbackPrize) {
+        prizeTextValue = fallbackPrize.text;
+        prizeAmountValue = fallbackPrize.min;
+    }
+    
+    if (prizeAmountValue > 0) {
         prizeResult.className = 'mt-6 p-6 rounded-xl text-center winner';
-        prizeText.textContent = prize.text;
-        prizeAmount.textContent = `€${prize.min.toLocaleString('pt-PT')}`;
+        prizeText.textContent = prizeTextValue;
+        prizeAmount.textContent = `€${prizeAmountValue.toLocaleString('pt-PT')}`;
     } else {
         prizeResult.className = 'mt-6 p-6 rounded-xl text-center no-win';
         prizeText.textContent = 'Sem prémio nesta categoria';

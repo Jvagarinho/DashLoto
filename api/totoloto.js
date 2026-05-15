@@ -66,11 +66,25 @@ async function handler(req, res) {
         
         console.log('Prize elements found:', prizeElements);
         
-        const prizeOrder = ['5+1', '5+0', '4+1', '4+0', '3+1', '3+0'];
-        prizeOrder.forEach((key, i) => {
-            if (prizeElements[i]) {
-                prizes[key] = prizeElements[i].value;
-                console.log(`Prize ${key} (index ${i}): ${prizeElements[i].value}`);
+        // No Totoloto, the order is:
+        // index 0 = 5+0 (2º Prémio, ou 1º se não houver jackpot)
+        // index 1 = 4+1 (3º Prémio)
+        // index 2 = 4+0 (4º Prémio)
+        // index 3 = 3+1 (5º Prémio)
+        
+        const prizeMapping = {
+            '5+1': 0, // jackpot - pode não existir
+            '5+0': 0, // 2º Prémio (ou 1º se não houver jackpot)
+            '4+1': 1, // 3º Prémio
+            '4+0': 2, // 4º Prémio
+            '3+1': 3  // 5º Prémio
+        };
+        
+        Object.keys(prizeMapping).forEach(key => {
+            const idx = prizeMapping[key];
+            if (prizeElements[idx]) {
+                prizes[key] = prizeElements[idx].value;
+                console.log(`Prize ${key} (index ${idx}): ${prizeElements[idx].value}`);
             }
         });
         

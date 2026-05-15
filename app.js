@@ -22,26 +22,26 @@ const GAMES = {
 const PRIZE_TABLES = {
     euromilhoes: {
         '5+2': { text: 'Jackpot! 🎉', min: 17000000 },
-        '5+1': { text: '2ª Categoria', min: 500000 },
-        '5+0': { text: '3ª Categoria', min: 50000 },
-        '4+2': { text: '4ª Categoria', min: 5000 },
-        '4+1': { text: '5ª Categoria', min: 200 },
-        '3+2': { text: '6ª Categoria', min: 50 },
-        '4+0': { text: '7ª Categoria', min: 30 },
-        '2+2': { text: '8ª Categoria', min: 15 },
-        '3+1': { text: '9ª Categoria', min: 10 },
-        '3+0': { text: '10ª Categoria', min: 8 },
-        '1+2': { text: '11ª Categoria', min: 8 },
-        '2+1': { text: '12ª Categoria', min: 5 }
+        '5+1': { text: '2º Prémio', min: 500000 },
+        '5+0': { text: '3º Prémio', min: 50000 },
+        '4+2': { text: '4º Prémio', min: 5000 },
+        '4+1': { text: '5º Prémio', min: 200 },
+        '3+2': { text: '6º Prémio', min: 50 },
+        '4+0': { text: '7º Prémio', min: 30 },
+        '2+2': { text: '8º Prémio', min: 15 },
+        '3+1': { text: '9º Prémio', min: 10 },
+        '3+0': { text: '10º Prémio', min: 8 },
+        '1+2': { text: '11º Prémio', min: 8 },
+        '2+1': { text: '12º Prémio', min: 5 }
     },
     totoloto: {
-        '5+1': { text: '1ª Categoria -jackpot!', min: 1000000 },
-        '5+0': { text: '2ª Categoria', min: 30000 },
-        '4+1': { text: '3ª Categoria', min: 1500 },
-        '4+0': { text: '4ª Categoria', min: 75 },
-        '3+1': { text: '5ª Categoria', min: 15 },
-        '3+0': { text: '6ª Categoria', min: 5 },
-        '2+1': { text: '7ª Categoria', min: 3 }
+        '5+1': { text: '1º Prémio - Jackpot! 🎉', min: 1000000 },
+        '5+0': { text: '2º Prémio', min: 30000 },
+        '4+1': { text: '3º Prémio', min: 1500 },
+        '4+0': { text: '4º Prémio', min: 75 },
+        '3+1': { text: '5º Prémio', min: 15 },
+        '3+0': { text: '6º Prémio', min: 5 },
+        '2+1': { text: '7º Prémio', min: 3 }
     }
 };
 

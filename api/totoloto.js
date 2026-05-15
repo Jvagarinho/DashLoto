@@ -34,13 +34,6 @@ async function handler(req, res) {
         const columsUl = betMiddle.find('ul.colums').first();
         const resultLis = columsUl.find('li');
         
-        console.log('Found result li elements:', resultLis.length);
-        
-        resultLis.each((i, el) => {
-            const text = $(el).text().trim();
-            console.log(`Result li ${i}: "${text}"`);
-        });
-        
         const firstLi = resultLis.first();
         const text = firstLi.text().trim();
         
@@ -71,10 +64,13 @@ async function handler(req, res) {
             }
         });
         
-        const prizeOrder = ['5+0', '4+1', '4+0', '3+1', '3+0', '2+1'];
+        console.log('Prize elements found:', prizeElements);
+        
+        const prizeOrder = ['5+1', '5+0', '4+1', '4+0', '3+1', '3+0'];
         prizeOrder.forEach((key, i) => {
             if (prizeElements[i]) {
                 prizes[key] = prizeElements[i].value;
+                console.log(`Prize ${key} (index ${i}): ${prizeElements[i].value}`);
             }
         });
         

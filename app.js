@@ -23,7 +23,7 @@ const PRIZE_TABLES = {
     euromilhoes: {
         '5+2': { text: 'Jackpot! 🎉', min: 17000000 },
         '5+1': { text: '2º Prémio', min: 500000 },
-        '5+0': { text: '3º Prémio', min: 50000 },
+        '5+0': { text: '3º Prémio', min: 229375.52 },
         '4+2': { text: '4º Prémio', min: 5000 },
         '4+1': { text: '5º Prémio', min: 200 },
         '3+2': { text: '6º Prémio', min: 50 },

@@ -33,28 +33,26 @@ async function handler(req, res) {
         let date = '';
         let prizes = {};
         
-        const allLis = $('li');
-        console.log('3. Total li elements:', allLis.length);
+        const allLis = $('ul.colums li').toArray();
+        console.log('3. Total ul.colums li elements:', allLis.length);
         
-        const numberLis = [];
-        allLis.each((i, el) => {
+        allLis.forEach((el, i) => {
             const text = $(el).text().trim();
             const num = parseInt(text);
-            if (!isNaN(num) && num >= 1 && num <= 49 && numberLis.length < 20) {
-                numberLis.push({ index: i, text, num });
+            console.log(`  li ${i}: "${text}" => ${num}`);
+        });
+        
+        allLis.forEach((el) => {
+            const text = $(el).text().trim();
+            const num = parseInt(text);
+            
+            if (!isNaN(num) && num >= 1 && num <= 49 && !numbers.includes(num) && numbers.length < 5) {
+                numbers.push(num);
             }
         });
         
-        console.log('4. Numbers found:', numberLis);
-        
-        if (numberLis.length >= 6) {
-            for (let i = 0; i < 6; i++) {
-                numbers.push(numberLis[i].num);
-            }
-        }
-        
         const prizeElements = [];
-        allLis.each((i, el) => {
+        $('li').each((i, el) => {
             const text = $(el).text().trim();
             const valueStr = text.replace(/[^\d,.]/g, '').replace(/\./g, '').replace(',', '.');
             const value = parseFloat(valueStr);
@@ -64,6 +62,7 @@ async function handler(req, res) {
             }
         });
         
+        console.log('4. Numbers after dedup:', numbers);
         console.log('5. Prize elements:', prizeElements.map(p => p.text));
         
         const prizeOrder = ['5+0', '4+1', '4+0', '3+1', '3+0', '2+1'];
@@ -74,7 +73,6 @@ async function handler(req, res) {
         });
         
         console.log('6. Final numbers:', numbers, 'Lucky:', luckyNumber);
-        console.log('7. Prizes:', prizes);
         
         res.status(200).json({ 
             numbers, 

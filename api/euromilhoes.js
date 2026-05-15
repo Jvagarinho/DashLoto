@@ -60,15 +60,15 @@ async function handler(req, res) {
         });
         
         const prizeOrder = [
-            '5+2', '5+1', '5+0', '4+2', '4+1',
-            '3+2', '4+0', '2+2', '3+1', '3+0',
-            '1+2', '2+1'
+            '5+0', '4+2', '4+1', '3+2', '4+0',
+            '2+2', '3+1', '3+0', '1+2', '2+1',
+            '5+2', '5+1'
         ];
         
         const prizeElements = [];
         $('li').each((i, el) => {
             const text = $(el).text().trim();
-            if (text.includes('€') && text.match(/\d/) && !text.includes('jackpot') && !text.includes('Jackpot')) {
+            if (text.includes('€') && text.match(/\d/) && !text.includes('jackpot') && !text.includes('Jackpot') && !text.includes('000.000') && !text.includes('000 000')) {
                 prizeElements.push(text);
             }
         });
@@ -78,15 +78,15 @@ async function handler(req, res) {
                 const valueStr = prizeElements[i].replace(/[^\d,.]/g, '').replace(/\./g, '').replace(',', '.');
                 const value = parseFloat(valueStr);
                 
-                if (!isNaN(value) && value > 0) {
+                if (!isNaN(value) && value > 0 && value < 1000000) {
                     prizes[key] = value;
-                    console.log(`Prize ${key} (index ${i}): ${value} from "${prizeElements[i]}"`);
+                    console.log(`Prize ${key} (index ${i}): ${value}`);
                 }
             }
         });
         
-        console.log('Prize elements found:', prizeElements.length, prizeElements);
-        console.log('Euromilhões prizes:', prizes);
+        console.log('Prize elements found:', prizeElements);
+        console.log('Prizes mapped:', prizes);
         
         if (numbers.length >= 5 && stars.length >= 2) {
             numbers.sort((a, b) => a - b);

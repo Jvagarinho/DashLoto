@@ -30,21 +30,35 @@ async function handler(req, res) {
         let luckyNumber = [];
         let prizes = {};
         
-        const liElements = [];
-        $('li').each((i, el) => {
+        const betMiddle = $('div.betMiddle.twocol.regPad').first();
+        const columsUl = betMiddle.find('ul.colums').first();
+        const resultLis = columsUl.find('li');
+        
+        console.log('Found result li elements:', resultLis.length);
+        
+        resultLis.each((i, el) => {
             const text = $(el).text().trim();
-            if (text && text.length < 100) {
-                liElements.push({ i, text });
-            }
+            console.log(`Result li ${i}: "${text}"`);
         });
         
-        console.log('All li elements:', JSON.stringify(liElements));
+        const firstLi = resultLis.first();
+        const text = firstLi.text().trim();
         
-        liElements.forEach(item => {
-            if (item.text.includes('+') || (item.text.match(/\d/) && !item.text.includes('Prémio') && !item.text.includes('€'))) {
-                console.log(`Found relevant: ${item.i}: "${item.text}"`);
+        if (text.includes('+')) {
+            const parts = text.split('+');
+            const numbersPart = parts[0].trim();
+            const luckyPart = parts[1].trim();
+            
+            const nums = numbersPart.split(/\s+/).map(n => parseInt(n)).filter(n => !isNaN(n) && n >= 1 && n <= 49);
+            const lucky = parseInt(luckyPart);
+            
+            if (nums.length === 5) {
+                numbers = nums;
             }
-        });
+            if (!isNaN(lucky) && lucky >= 1 && lucky <= 13) {
+                luckyNumber = [lucky];
+            }
+        }
         
         const prizeElements = [];
         $('li').each((i, el) => {
@@ -69,8 +83,7 @@ async function handler(req, res) {
         res.status(200).json({ 
             numbers, 
             stars: luckyNumber, 
-            prizes,
-            debug: liElements.slice(0, 30)
+            prizes 
         });
         
     } catch (error) {

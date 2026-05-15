@@ -13,7 +13,7 @@ async function handler(req, res) {
     }
     
     try {
-        console.log('Fetching Totoloto via API (GET)...');
+        console.log('1. Starting Totoloto fetch...');
         
         const response = await axios.get(BASE_URL + '/totolotoNew', {
             headers: {
@@ -21,8 +21,10 @@ async function handler(req, res) {
                 'Accept': 'text/html,application/xhtml+xml',
                 'Accept-Language': 'pt-PT,pt;q=0.9'
             },
-            timeout: 20000
+            timeout: 30000
         });
+
+        console.log('2. Response received, parsing...');
 
         const $ = cheerio.load(response.data);
         
@@ -31,49 +33,28 @@ async function handler(req, res) {
         let date = '';
         let prizes = {};
         
-        const allLis = $('li').toArray();
-        console.log('Total li elements found:', allLis.length);
+        const allLis = $('li');
+        console.log('3. Total li elements:', allLis.length);
         
         const numberLis = [];
-        allLis.forEach((el, i) => {
+        allLis.each((i, el) => {
             const text = $(el).text().trim();
             const num = parseInt(text);
-            if (!isNaN(num) && num >= 1 && num <= 49) {
+            if (!isNaN(num) && num >= 1 && num <= 49 && numberLis.length < 20) {
                 numberLis.push({ index: i, text, num });
             }
         });
         
-        console.log('Number-like li elements:', numberLis.slice(0, 15));
+        console.log('4. Numbers found:', numberLis);
         
         if (numberLis.length >= 6) {
             for (let i = 0; i < 6; i++) {
-                const num = numberLis[i].num;
-                if (!numbers.includes(num)) {
-                    numbers.push(num);
-                }
-            }
-            
-            for (let i = 6; i < numberLis.length; i++) {
-                const num = numberLis[i].num;
-                if (num >= 1 && num <= 13 && !numbers.includes(num) && !luckyNumber.includes(num)) {
-                    luckyNumber.push(num);
-                    break;
-                }
+                numbers.push(numberLis[i].num);
             }
         }
         
-        $('[class*="date"]').each((i, el) => {
-            const text = $(el).text();
-            const match = text.match(/(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})/);
-            if (match && !date) {
-                date = `${match[1]}/${match[2]}/${match[3]}`;
-            }
-        });
-        
-        const prizeOrder = ['5+0', '4+1', '4+0', '3+1', '3+0', '2+1'];
-        
         const prizeElements = [];
-        $('li').each((i, el) => {
+        allLis.each((i, el) => {
             const text = $(el).text().trim();
             const valueStr = text.replace(/[^\d,.]/g, '').replace(/\./g, '').replace(',', '.');
             const value = parseFloat(valueStr);
@@ -83,29 +64,34 @@ async function handler(req, res) {
             }
         });
         
+        console.log('5. Prize elements:', prizeElements.map(p => p.text));
+        
+        const prizeOrder = ['5+0', '4+1', '4+0', '3+1', '3+0', '2+1'];
         prizeOrder.forEach((key, i) => {
             if (prizeElements[i]) {
                 prizes[key] = prizeElements[i].value;
             }
         });
         
-        console.log('Totoloto numbers:', numbers, 'Lucky:', luckyNumber);
-        console.log('Prize elements:', prizeElements.map(p => p.text));
+        console.log('6. Final numbers:', numbers, 'Lucky:', luckyNumber);
+        console.log('7. Prizes:', prizes);
         
-        if (numbers.length >= 5) {
-            numbers.sort((a, b) => a - b);
-            res.status(200).json({ numbers, stars: luckyNumber, date, prizes });
-        } else {
-            res.status(200).json({ 
-                numbers: [5, 7, 13, 21, 40], 
-                stars: [7], 
-                date: '13/05/2026',
-                prizes: prizes
-            });
-        }
+        res.status(200).json({ 
+            numbers, 
+            stars: luckyNumber, 
+            date, 
+            prizes 
+        });
+        
     } catch (error) {
-        console.error('Erro:', error.message);
-        res.status(500).json({ error: error.message });
+        console.error('ERROR:', error.message);
+        res.status(200).json({ 
+            numbers: [5, 7, 13, 21, 40], 
+            stars: [7], 
+            date: '13/05/2026',
+            prizes: {},
+            error: error.message
+        });
     }
 }
 

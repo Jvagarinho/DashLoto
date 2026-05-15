@@ -31,27 +31,33 @@ async function handler(req, res) {
         let date = '';
         let prizes = {};
         
-        const allLis = $('ul.colums li').toArray();
-        console.log('All ul.colums li found:', allLis.length);
+        const allLis = $('li').toArray();
+        console.log('Total li elements found:', allLis.length);
         
+        const numberLis = [];
         allLis.forEach((el, i) => {
             const text = $(el).text().trim();
-            console.log(`ul.colums li ${i}: "${text}"`);
+            const num = parseInt(text);
+            if (!isNaN(num) && num >= 1 && num <= 49) {
+                numberLis.push({ index: i, text, num });
+            }
         });
         
-        if (allLis.length >= 6) {
+        console.log('Number-like li elements:', numberLis.slice(0, 15));
+        
+        if (numberLis.length >= 6) {
             for (let i = 0; i < 6; i++) {
-                const text = $(allLis[i]).text().trim();
-                const num = parseInt(text);
-                
-                if (!isNaN(num) && num >= 1 && num <= 49) {
+                const num = numberLis[i].num;
+                if (!numbers.includes(num)) {
                     numbers.push(num);
-                } else if (!isNaN(num) && num >= 1 && num <= 13) {
-                    if (numbers.length >= 5) {
-                        luckyNumber.push(num);
-                    } else {
-                        numbers.push(num);
-                    }
+                }
+            }
+            
+            for (let i = 6; i < numberLis.length; i++) {
+                const num = numberLis[i].num;
+                if (num >= 1 && num <= 13 && !numbers.includes(num) && !luckyNumber.includes(num)) {
+                    luckyNumber.push(num);
+                    break;
                 }
             }
         }
@@ -77,16 +83,14 @@ async function handler(req, res) {
             }
         });
         
-        console.log('Prize elements found:', prizeElements.map(p => p.text));
-        
         prizeOrder.forEach((key, i) => {
             if (prizeElements[i]) {
                 prizes[key] = prizeElements[i].value;
-                console.log(`Prize ${key} (index ${i}): ${prizeElements[i].value}`);
             }
         });
         
         console.log('Totoloto numbers:', numbers, 'Lucky:', luckyNumber);
+        console.log('Prize elements:', prizeElements.map(p => p.text));
         
         if (numbers.length >= 5) {
             numbers.sort((a, b) => a - b);

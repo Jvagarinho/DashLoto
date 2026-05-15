@@ -60,18 +60,6 @@ async function handler(req, res) {
         
         const prizeTable = $('table');
         
-        let tableDebug = [];
-        prizeTable.find('tr').each((i, row) => {
-            const cells = $(row).find('td');
-            const rowData = [];
-            cells.each((j, cell) => {
-                rowData.push($(cell).text().trim());
-            });
-            if (rowData.length > 0) {
-                tableDebug.push(rowData);
-            }
-        });
-        
         prizeTable.find('tr').each((i, row) => {
             const cells = $(row).find('td');
             if (cells.length >= 2) {
@@ -89,10 +77,10 @@ async function handler(req, res) {
                 
                 if (categoryCell.includes('5') && categoryCell.includes('2')) {
                     prizes['5+2'] = value;
-                } else if (categoryCell.includes('5') && categoryCell.includes('1') && !categoryCell.includes('5')) {
+                } else if (categoryCell.includes('5') && categoryCell.includes('1')) {
                     prizes['5+1'] = value;
-                } else if (categoryCell.includes('5') && !categoryCell.includes('+')) {
-                    if (categoryCell.includes('0')) prizes['5+0'] = value;
+                } else if (categoryCell.includes('5') && categoryCell.includes('0')) {
+                    prizes['5+0'] = value;
                 } else if (categoryCell.includes('4') && categoryCell.includes('2')) {
                     prizes['4+2'] = value;
                 } else if (categoryCell.includes('4') && categoryCell.includes('1')) {
@@ -112,22 +100,23 @@ async function handler(req, res) {
                 } else if (categoryCell.includes('1') && categoryCell.includes('2')) {
                     prizes['1+2'] = value;
                 }
+                
+                console.log(`Row ${i}: "${categoryCell}" => ${amountCell} (parsed: ${value})`);
             }
         });
         
-        console.log('Tabela debug:', JSON.stringify(tableDebug));
         console.log('Prémios extraídos:', prizes);
         
         if (numbers.length >= 5 && stars.length >= 2) {
             numbers.sort((a, b) => a - b);
             stars.sort((a, b) => a - b);
-            res.status(200).json({ numbers, stars, date, prizes, debug: tableDebug });
+            res.status(200).json({ numbers, stars, date, prizes });
         } else {
             res.status(200).json({ 
                 numbers: [4, 26, 32, 35, 36], 
                 stars: [5, 7], 
                 date: '12/05/2026',
-                prizes: {}
+                prizes: prizes
             });
         }
     } catch (error) {

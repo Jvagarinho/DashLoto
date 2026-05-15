@@ -88,6 +88,8 @@ async function handler(req, res) {
                 } else if (categoryCell.includes('2') && categoryCell.includes('1')) {
                     prizes['2+1'] = value;
                 }
+                
+                console.log(`Row ${i}: "${categoryCell}" => ${amountCell} (parsed: ${value})`);
             }
         });
         
@@ -101,7 +103,7 @@ async function handler(req, res) {
                 numbers: [5, 7, 13, 21, 40], 
                 stars: [7], 
                 date: '13/05/2026',
-                prizes: {}
+                prizes: prizes
             });
         }
     } catch (error) {

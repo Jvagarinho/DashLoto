@@ -28,6 +28,7 @@ async function handler(req, res) {
         
         let numbers = [];
         let luckyNumber = [];
+        let date = '';
         let prizes = {};
         
         const betMiddle = $('div.betMiddle.twocol.regPad').first();
@@ -52,6 +53,16 @@ async function handler(req, res) {
                 luckyNumber = [lucky];
             }
         }
+        
+        $('span, div, p').each((i, el) => {
+            const text = $(el).text();
+            const match = text.match(/(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})/);
+            if (match && !date) {
+                date = `${match[1]}/${match[2]}/${match[3]}`;
+            }
+        });
+        
+        console.log('Date found:', date);
         
         const prizeElements = [];
         $('li').each((i, el) => {
@@ -93,6 +104,7 @@ async function handler(req, res) {
         res.status(200).json({ 
             numbers, 
             stars: luckyNumber, 
+            date,
             prizes 
         });
         

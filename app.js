@@ -37,8 +37,8 @@ const PRIZE_TABLES = {
     totoloto: {
         '5+0': { text: '2º Prémio', min: 30000 },
         '4+1': { text: '3º Prémio', min: 1500 },
-        '4+0': { text: '4º Prémio', min: 75 },
-        '3+1': { text: '5º Prémio', min: 15 }
+        '3+0': { text: '4º Prémio', min: 75 },
+        '2+1': { text: '5º Prémio', min: 15 }
     }
 };
 

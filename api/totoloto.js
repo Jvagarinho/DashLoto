@@ -80,14 +80,14 @@ async function handler(req, res) {
         // Totoloto prize order:
         // index 0 = 5+0 (2º Prémio) = €25,270.12
         // index 1 = 4+1 (3º Prémio) = €202.48
-        // index 2 = 4+0 (4º Prémio) = €5.28
-        // index 3 = 3+1 (5º Prémio) = €2.17
+        // index 2 = 3+0 (4º Prémio) = €5.28
+        // index 3 = 2+1 (5º Prémio) = €2.17
         
         const prizeMapping = {
             '5+0': 0,
             '4+1': 1,
-            '4+0': 2,
-            '3+1': 3
+            '3+0': 2,
+            '2+1': 3
         };
         
         Object.keys(prizeMapping).forEach(key => {

@@ -91,11 +91,23 @@ async function handler(req, res) {
         // index 4 = 4+0 (7º Prémio)
         // etc.
         
+        // Correct mapping for Euromilhões (no jackpot winner):
+        // index 0 = 5+0 (3º Prémio) = €710,654
+        // index 1 = 4+2 (4º Prémio) = €83,045.77
+        // index 2 = 3+2 (6º Prémio) = €1,916.05
+        // index 3 = 4+1 (5º Prémio) = €167.77
+        // index 4 = 4+0 (7º Prémio) = €63.88
+        // index 5 = 2+2 (8º Prémio) = €53.46
+        // index 6 = 3+1 (9º Prémio) = €13.98
+        // index 7 = 3+0 (10º Prémio) = €13.28
+        // index 8 = 1+2 (11º Prémio) = €11.38
+        // index 9 = 2+1 (12º Prémio) = €6.21
+        
         const prizeMapping = {
             '5+0': 0,
             '4+2': 1,
-            '4+1': 2,
-            '3+2': 3,
+            '3+2': 2,
+            '4+1': 3,
             '4+0': 4,
             '2+2': 5,
             '3+1': 6,

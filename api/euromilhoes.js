@@ -68,63 +68,74 @@ async function handler(req, res) {
             const valueStr = text.replace(/[^\d,.]/g, '').replace(/\./g, '').replace(',', '.');
             const value = parseFloat(valueStr);
             
-            if (text.includes('€') && !isNaN(value) && value > 0 && value < 1000000) {
+            if (text.includes('€') && !isNaN(value) && value > 0) {
                 prizeElements.push({ text, value });
             }
         });
         
-        console.log('Prize elements found:', prizeElements);
+        console.log('All prize elements found:', prizeElements);
         
-        // Show ALL prize elements with their index
-        prizeElements.forEach((p, idx) => {
-            console.log(`  Prize index ${idx}: ${p.value} from "${p.text}"`);
-        });
+        // Detect if there's a jackpot winner by checking if 5+2 has a value
+        // If first prize element is > 1,000,000, there's a jackpot
+        const hasJackpot = prizeElements.length > 0 && prizeElements[0].value > 1000000;
         
-        console.log('Date found:', date);
+        if (hasJackpot) {
+            console.log('Jackpot winner detected!');
+            // When there's a jackpot winner:
+            // index 0 = 5+2 (Jackpot)
+            // index 1 = 5+1
+            // index 2 = 5+0
+            // index 3 = 4+2
+            // etc.
+            const prizeMapping = {
+                '5+2': 0,
+                '5+1': 1,
+                '5+0': 2,
+                '4+2': 3,
+                '4+1': 4,
+                '3+2': 5,
+                '4+0': 6,
+                '2+2': 7,
+                '3+1': 8,
+                '3+0': 9,
+                '1+2': 10,
+                '2+1': 11
+            };
+            
+            Object.keys(prizeMapping).forEach(key => {
+                const idx = prizeMapping[key];
+                if (prizeElements[idx]) {
+                    prizes[key] = prizeElements[idx].value;
+                }
+            });
+        } else {
+            console.log('No jackpot winner - using rollover mapping');
+            // When no jackpot winner:
+            // index 0 = 5+0 (3º Prémio)
+            // index 1 = 4+2 (4º Prémio)
+            // index 2 = 3+2 (6º Prémio)
+            // etc.
+            const prizeMapping = {
+                '5+0': 0,
+                '4+2': 1,
+                '3+2': 2,
+                '4+1': 3,
+                '4+0': 4,
+                '2+2': 5,
+                '3+1': 6,
+                '3+0': 7,
+                '1+2': 8,
+                '2+1': 9
+            };
+            
+            Object.keys(prizeMapping).forEach(key => {
+                const idx = prizeMapping[key];
+                if (prizeElements[idx]) {
+                    prizes[key] = prizeElements[idx].value;
+                }
+            });
+        }
         
-        // When no jackpot winner, prizes start from index 0 = 3rd prize (5+0)
-        // So:
-        // index 0 = 5+0 (3º Prémio)
-        // index 1 = 4+2 (4º Prémio)
-        // index 2 = 4+1 (5º Prémio)
-        // index 3 = 3+2 (6º Prémio)
-        // index 4 = 4+0 (7º Prémio)
-        // etc.
-        
-        // Correct mapping for Euromilhões (no jackpot winner):
-        // index 0 = 5+0 (3º Prémio) = €710,654
-        // index 1 = 4+2 (4º Prémio) = €83,045.77
-        // index 2 = 3+2 (6º Prémio) = €1,916.05
-        // index 3 = 4+1 (5º Prémio) = €167.77
-        // index 4 = 4+0 (7º Prémio) = €63.88
-        // index 5 = 2+2 (8º Prémio) = €53.46
-        // index 6 = 3+1 (9º Prémio) = €13.98
-        // index 7 = 3+0 (10º Prémio) = €13.28
-        // index 8 = 1+2 (11º Prémio) = €11.38
-        // index 9 = 2+1 (12º Prémio) = €6.21
-        
-        const prizeMapping = {
-            '5+0': 0,
-            '4+2': 1,
-            '3+2': 2,
-            '4+1': 3,
-            '4+0': 4,
-            '2+2': 5,
-            '3+1': 6,
-            '3+0': 7,
-            '1+2': 8,
-            '2+1': 9
-        };
-        
-        Object.keys(prizeMapping).forEach(key => {
-            const idx = prizeMapping[key];
-            if (prizeElements[idx]) {
-                prizes[key] = prizeElements[idx].value;
-                console.log(`Prize ${key} (index ${idx}): ${prizeElements[idx].value}`);
-            }
-        });
-        
-        console.log('Final numbers:', numbers, 'Stars:', stars);
         console.log('All prizes:', prizes);
         
         res.status(200).json({ 

@@ -95,29 +95,32 @@ async function handler(req, res) {
         
         if (hasJackpot) {
             // Jackpot winner exists:
-            // index 0 = 5+2 (Jackpot) - €170M+
-            // index 1 = 5+1 - €27M
-            // index 2 = 5+0 - €X
-            // ...
+            // jackpotPrizes[0] = 5+2 (Jackpot) - €54M
+            // jackpotPrizes[1] = 5+1 (2º Prémio) - €27M
+            // jackpotPrizes[2] = next jackpot value
+            // normalPrizes = the rest of the prize categories
+            
+            prizes['5+2'] = jackpotPrizes[0] ? jackpotPrizes[0].value : 0;
+            prizes['5+1'] = jackpotPrizes[1] ? jackpotPrizes[1].value : 0;
+            
+            // Map remaining prizes from normalPrizes
             const prizeMapping = {
-                '5+2': 0,
-                '5+1': 1,
-                '5+0': 2,
-                '4+2': 3,
-                '4+1': 4,
-                '3+2': 5,
-                '4+0': 6,
-                '2+2': 7,
-                '3+1': 8,
-                '3+0': 9,
-                '1+2': 10,
-                '2+1': 11
+                '5+0': 0,
+                '4+2': 1,
+                '4+1': 2,
+                '3+2': 3,
+                '4+0': 4,
+                '2+2': 5,
+                '3+1': 6,
+                '3+0': 7,
+                '1+2': 8,
+                '2+1': 9
             };
             
             Object.keys(prizeMapping).forEach(key => {
                 const idx = prizeMapping[key];
-                if (prizeElements[idx]) {
-                    prizes[key] = prizeElements[idx].value;
+                if (normalPrizes[idx]) {
+                    prizes[key] = normalPrizes[idx].value;
                 }
             });
         } else {

@@ -35,13 +35,6 @@ async function handler(req, res) {
         const columsUl = betMiddle.find('ul.colums').first();
         const resultLis = columsUl.find('li');
         
-        console.log('Found result li elements:', resultLis.length);
-        
-        resultLis.each((i, el) => {
-            const text = $(el).text().trim();
-            console.log(`Result li ${i}: "${text}"`);
-        });
-        
         const firstLi = resultLis.first();
         const text = firstLi.text().trim();
         
@@ -61,7 +54,7 @@ async function handler(req, res) {
             }
         }
         
-        $('[class*="date"]').each((i, el) => {
+        $('span, div, p').each((i, el) => {
             const text = $(el).text();
             const match = text.match(/(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})/);
             if (match && !date) {
@@ -81,21 +74,38 @@ async function handler(req, res) {
         });
         
         console.log('Prize elements found:', prizeElements);
+        console.log('Date found:', date);
         
-        const prizeOrder = [
-            '5+0', '4+2', '4+1', '3+2', '4+0',
-            '2+2', '3+1', '3+0', '1+2', '2+1',
-            '5+2', '5+1'
-        ];
+        // Euromilhões prize order (when no jackpot winners):
+        // index 0 = 5+0 (3º Prémio)
+        // index 1 = 4+2 (4º Prémio)
+        // index 2 = 4+1 (5º Prémio)
+        // index 3 = 3+2 (6º Prémio)
+        // etc.
         
-        prizeOrder.forEach((key, i) => {
-            if (prizeElements[i]) {
-                prizes[key] = prizeElements[i].value;
-                console.log(`Prize ${key} (index ${i}): ${prizeElements[i].value}`);
+        const prizeMapping = {
+            '5+0': 0,
+            '4+2': 1,
+            '4+1': 2,
+            '3+2': 3,
+            '4+0': 4,
+            '2+2': 5,
+            '3+1': 6,
+            '3+0': 7,
+            '1+2': 8,
+            '2+1': 9
+        };
+        
+        Object.keys(prizeMapping).forEach(key => {
+            const idx = prizeMapping[key];
+            if (prizeElements[idx]) {
+                prizes[key] = prizeElements[idx].value;
+                console.log(`Prize ${key} (index ${idx}): ${prizeElements[idx].value}`);
             }
         });
         
         console.log('Final numbers:', numbers, 'Stars:', stars);
+        console.log('Final date:', date);
         
         res.status(200).json({ 
             numbers, 

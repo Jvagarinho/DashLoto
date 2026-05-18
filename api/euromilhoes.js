@@ -73,20 +73,32 @@ async function handler(req, res) {
             }
         });
         
-        console.log('All prize elements found:', prizeElements);
+        console.log('All prize elements:', prizeElements);
         
-        // Detect if there's a jackpot winner by checking if 5+2 has a value
-        // If first prize element is > 1,000,000, there's a jackpot
-        const hasJackpot = prizeElements.length > 0 && prizeElements[0].value > 1000000;
+        // Separate normal prizes from jackpot prizes
+        const normalPrizes = [];
+        const jackpotPrizes = [];
+        
+        prizeElements.forEach(p => {
+            if (p.value > 10000000) {
+                jackpotPrizes.push(p);
+            } else {
+                normalPrizes.push(p);
+            }
+        });
+        
+        const hasJackpot = jackpotPrizes.length > 0;
+        
+        console.log('Normal prizes:', normalPrizes.length);
+        console.log('Jackpot prizes:', jackpotPrizes.length);
+        console.log('Has jackpot:', hasJackpot);
         
         if (hasJackpot) {
-            console.log('Jackpot winner detected!');
-            // When there's a jackpot winner:
-            // index 0 = 5+2 (Jackpot)
-            // index 1 = 5+1
-            // index 2 = 5+0
-            // index 3 = 4+2
-            // etc.
+            // Jackpot winner exists:
+            // index 0 = 5+2 (Jackpot) - €170M+
+            // index 1 = 5+1 - €27M
+            // index 2 = 5+0 - €X
+            // ...
             const prizeMapping = {
                 '5+2': 0,
                 '5+1': 1,
@@ -109,12 +121,11 @@ async function handler(req, res) {
                 }
             });
         } else {
-            console.log('No jackpot winner - using rollover mapping');
-            // When no jackpot winner:
-            // index 0 = 5+0 (3º Prémio)
-            // index 1 = 4+2 (4º Prémio)
-            // index 2 = 3+2 (6º Prémio)
-            // etc.
+            // No jackpot winner (rollover):
+            // index 0 = 5+0 (3º Prémio) - €710K
+            // index 1 = 4+2 (4º Prémio) - €83K
+            // index 2 = 3+2 (6º Prémio) - €1.9K
+            // ...
             const prizeMapping = {
                 '5+0': 0,
                 '4+2': 1,
@@ -136,7 +147,7 @@ async function handler(req, res) {
             });
         }
         
-        console.log('All prizes:', prizes);
+        console.log('Final prizes:', prizes);
         
         res.status(200).json({ 
             numbers, 

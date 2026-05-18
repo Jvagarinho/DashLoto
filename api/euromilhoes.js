@@ -74,13 +74,21 @@ async function handler(req, res) {
         });
         
         console.log('Prize elements found:', prizeElements);
+        
+        // Show ALL prize elements with their index
+        prizeElements.forEach((p, idx) => {
+            console.log(`  Prize index ${idx}: ${p.value} from "${p.text}"`);
+        });
+        
         console.log('Date found:', date);
         
-        // Euromilhões prize order (when no jackpot winners):
+        // When no jackpot winner, prizes start from index 0 = 3rd prize (5+0)
+        // So:
         // index 0 = 5+0 (3º Prémio)
         // index 1 = 4+2 (4º Prémio)
         // index 2 = 4+1 (5º Prémio)
         // index 3 = 3+2 (6º Prémio)
+        // index 4 = 4+0 (7º Prémio)
         // etc.
         
         const prizeMapping = {
@@ -105,7 +113,7 @@ async function handler(req, res) {
         });
         
         console.log('Final numbers:', numbers, 'Stars:', stars);
-        console.log('Final date:', date);
+        console.log('All prizes:', prizes);
         
         res.status(200).json({ 
             numbers, 

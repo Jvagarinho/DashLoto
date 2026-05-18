@@ -77,18 +77,17 @@ async function handler(req, res) {
         
         console.log('Prize elements found:', prizeElements);
         
-        // No Totoloto, the order is:
-        // index 0 = 5+0 (2º Prémio, ou 1º se não houver jackpot)
-        // index 1 = 4+1 (3º Prémio)
-        // index 2 = 4+0 (4º Prémio)
-        // index 3 = 3+1 (5º Prémio)
+        // Totoloto prize order:
+        // index 0 = 5+0 (2º Prémio) = €25,270.12
+        // index 1 = 4+1 (3º Prémio) = €202.48
+        // index 2 = 4+0 (4º Prémio) = €5.28
+        // index 3 = 3+1 (5º Prémio) = €2.17
         
         const prizeMapping = {
-            '5+1': 0, // jackpot - pode não existir
-            '5+0': 0, // 2º Prémio (ou 1º se não houver jackpot)
-            '4+1': 1, // 3º Prémio
-            '4+0': 2, // 4º Prémio
-            '3+1': 3  // 5º Prémio
+            '5+0': 0,
+            '4+1': 1,
+            '4+0': 2,
+            '3+1': 3
         };
         
         Object.keys(prizeMapping).forEach(key => {

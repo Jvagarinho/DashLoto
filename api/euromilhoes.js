@@ -94,27 +94,29 @@ async function handler(req, res) {
         console.log('Has jackpot:', hasJackpot);
         
         if (hasJackpot) {
-            // Jackpot winner exists:
-            // jackpotPrizes[0] = 5+2 (Jackpot) - €54M
-            // jackpotPrizes[1] = 5+1 (2º Prémio) - €27M
-            // jackpotPrizes[2] = next jackpot value
-            // normalPrizes = the rest of the prize categories
+            // Jackpot prize structure (when there's at least one winner):
+            // The first few elements are the actual prize categories
+            // The last elements (>10M) are jackpot-related values
             
-            prizes['5+2'] = jackpotPrizes[0] ? jackpotPrizes[0].value : 0;
-            prizes['5+1'] = jackpotPrizes[1] ? jackpotPrizes[1].value : 0;
+            // prizeElements[0] = 2º Prémio (5+1) = €710,654
+            // prizeElements[1] = 3º Prémio (5+0) = €83,045,77
+            // etc.
+            // prizeElements[12] = Jackpot estimado = €92M (informativo)
+            // prizeElements[13] = Jackpot real = €27M (sem vencedor)
+            // prizeElements[14] = Receita ilíquida (NÃO é prémio!)
             
-            // Map remaining prizes from normalPrizes
             const prizeMapping = {
-                '5+0': 0,
-                '4+2': 1,
-                '4+1': 2,
-                '3+2': 3,
-                '4+0': 4,
-                '2+2': 5,
-                '3+1': 6,
-                '3+0': 7,
-                '1+2': 8,
-                '2+1': 9
+                '5+1': 0,
+                '5+0': 1,
+                '4+2': 2,
+                '4+1': 3,
+                '3+2': 4,
+                '4+0': 5,
+                '2+2': 6,
+                '3+1': 7,
+                '3+0': 8,
+                '1+2': 9,
+                '2+1': 10
             };
             
             Object.keys(prizeMapping).forEach(key => {
@@ -123,6 +125,9 @@ async function handler(req, res) {
                     prizes[key] = normalPrizes[idx].value;
                 }
             });
+            
+            // 5+2 (1º Prémio) = €0 because no one won
+            prizes['5+2'] = 0;
         } else {
             // No jackpot winner (rollover):
             // index 0 = 5+0 (3º Prémio) - €710K

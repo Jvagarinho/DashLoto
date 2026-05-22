@@ -85,107 +85,61 @@ async function handler(req, res) {
         
         console.log('Prize elements found:', prizeElements);
          
-        // Parse prizes by looking for text patterns like "3º Prémio", "4º Prémio", etc.
-        // and associate them with their values
-        prizeElements.forEach(prizeElement => {
-            const text = prizeElement.text;
-            console.log('Checking prize element:', text, 'value:', prizeElement.value);
-            let prizeKey = null;
-            
-            // More flexible matching - look for the pattern anywhere in the text
-            if (text.includes('2º Prémio') || text.includes('2. º Prémio') || text.includes('2ºPremio') || 
-                text.includes('2° Prémio') || text.includes('2.º Prémio')) {
-                prizeKey = '5+0';
-            } else if (text.includes('3º Prémio') || text.includes('3. º Prémio') || text.includes('3ºPremio') || 
-                       text.includes('3° Prémio') || text.includes('3.º Prémio')) {
-                prizeKey = '4+0';
-            } else if (text.includes('4º Prémio') || text.includes('4. º Prémio') || text.includes('4ºPremio') || 
-                       text.includes('4° Prémio') || text.includes('4.º Prémio')) {
-                prizeKey = '3+0';
-            } else if (text.includes('5º Prémio') || text.includes('5. º Prémio') || text.includes('5ºPremio') || 
-                       text.includes('5° Prémio') || text.includes('5.º Prémio')) {
-                prizeKey = '2+0';
-            }
-            
-            if (prizeKey) {
-                prizes[prizeKey] = prizeElement.value;
-                console.log(`Prize ${prizeKey} found: ${prizeElement.value} (from text: ${text})`);
-            }
-        });
-        
-        // If we still haven't found prizes, try to extract from nearby elements
-        // Look for elements containing the prize names and get values from next siblings
-        if (Object.keys(prizes).length === 0) {
-            console.log('Trying alternative prize extraction method...');
-            $('li').each((i, el) => {
-                const text = $(el).text().trim();
-                let prizeKey = null;
+        // Reset prizes object
+        prizes = {};
+         
+        // Extract prizes by finding each prize block (<ul class="colums"> or <ul class="colums listBg">)
+        $('ul.colums, ul.colums.listBg').each((i, ul) => {
+            const lis = $(ul).find('li');
+            if (lis.length >= 4) {
+                const prizeNameText = $(lis[0]).text().trim(); // e.g., "3.º Prémio"
+                const valueText = $(lis[3]).text().trim();    // e.g., "€ 407,49&nbsp;"
                 
-                // Check for various formats of prize indicators
-                if (text.includes('2º Prémio') || text.includes('2. º Prémio') || text.includes('2ºPremio') || 
-                    text.includes('2° Prémio') || text.includes('2.º Prémio')) {
+                console.log(`Checking ul #${i}: prizeName='${prizeNameText}', valueText='${valueText}'`);
+                
+                let prizeKey = null;
+                let prizeValue = null;
+                
+                // Extract prize value from the 4th li element
+                if (valueText) {
+                    const valueStr = valueText.replace(/[^\d,.]/g, '').replace(/\./g, '').replace(',', '.');
+                    const value = parseFloat(valueStr);
+                    if (!isNaN(value) && value > 0) {
+                        prizeValue = value;
+                    }
+                }
+                
+                // Map prize name to our internal key
+                if (prizeNameText.includes('1.º Prémio') || prizeNameText.includes('1. º Prémio') || 
+                    prizeNameText.includes('1ºPrémio') || prizeNameText.includes('1° Prémio') || 
+                    prizeNameText.includes('1.º Prémio')) {
+                    // Jackpot - we handle this separately if needed
+                } else if (prizeNameText.includes('2.º Prémio') || prizeNameText.includes('2. º Prémio') || 
+                          prizeNameText.includes('2ºPrémio') || prizeNameText.includes('2° Prémio') || 
+                          prizeNameText.includes('2.º Prémio')) {
                     prizeKey = '5+0';
-                } else if (text.includes('3º Prémio') || text.includes('3. º Prémio') || text.includes('3ºPremio') || 
-                           text.includes('3° Prémio') || text.includes('3.º Prémio')) {
+                } else if (prizeNameText.includes('3.º Prémio') || prizeNameText.includes('3. º Prémio') || 
+                          prizeNameText.includes('3ºPrémio') || prizeNameText.includes('3° Prémio') || 
+                          prizeNameText.includes('3.º Prémio')) {
                     prizeKey = '4+0';
-                } else if (text.includes('4º Prémio') || text.includes('4. º Prémio') || text.includes('4ºPremio') || 
-                           text.includes('4° Prémio') || text.includes('4.º Prémio')) {
+                } else if (prizeNameText.includes('4.º Prémio') || prizeNameText.includes('4. º Prémio') || 
+                          prizeNameText.includes('4ºPrémio') || prizeNameText.includes('4° Prémio') || 
+                          prizeNameText.includes('4.º Prémio')) {
                     prizeKey = '3+0';
-                } else if (text.includes('5º Prémio') || text.includes('5. º Prémio') || text.includes('5ºPremio') || 
-                           text.includes('5° Prémio') || text.includes('5.º Prémio')) {
+                } else if (prizeNameText.includes('5.º Prémio') || prizeNameText.includes('5. º Prémio') || 
+                          prizeNameText.includes('5ºPrémio') || prizeNameText.includes('5° Prémio') || 
+                          prizeNameText.includes('5.º Prémio')) {
                     prizeKey = '2+0';
                 }
                 
-                if (prizeKey) {
-                    // Try to find the value in this element or the next one
-                    let valueText = $(el).text();
-                    let value = extractPrizeValue(valueText);
-                    
-                    // If no value in this element, check next sibling
-                    if (value === null) {
-                        const nextEl = $(el).next('li');
-                        if (nextEl.length > 0) {
-                            valueText = nextEl.text();
-                            value = extractPrizeValue(valueText);
-                        }
-                    }
-                    
-                    // Also check previous sibling
-                    if (value === null) {
-                        const prevEl = $(el).prev('li');
-                        if (prevEl.length > 0) {
-                            valueText = prevEl.text();
-                            value = extractPrizeValue(valueText);
-                        }
-                    }
-                    
-                    if (value !== null) {
-                        prizes[prizeKey] = value;
-                        console.log(`Prize ${prizeKey} found: ${value} (from text: '${text}' + adjacent elements)`);
-                    }
+                if (prizeKey && prizeValue !== null) {
+                    prizes[prizeKey] = prizeValue;
+                    console.log(`✅ Prize mapped: ${prizeKey} = €${prizeValue} (from '${prizeNameText}')`);
+                } else if (prizeKey) {
+                    console.log(`⚠️ Prize name found for ${prizeKey} but no valid value in '${valueText}'`);
                 }
-            });
-        }
-        
-        // Final fallback: if we still have no prizes, try to extract ALL numbers with € and map them sequentially
-        if (Object.keys(prizes).length === 0 && prizeElements.length >= 4) {
-            console.log('Using sequential fallback mapping...');
-            // Sort by position in DOM to get consistent ordering
-            const sortedElements = prizeElements.sort((a, b) => {
-                const posA = $(a.text).first().offset().top;
-                const posB = $(b.text).first().offset().top;
-                return posA - posB;
-            });
-            
-            // Map first 4 elements to our prize categories (assuming they're in order)
-            const prizeKeys = ['5+0', '4+0', '3+0', '2+0'];
-            for (let i = 0; i < Math.min(4, sortedElements.length); i++) {
-                const key = prizeKeys[i];
-                const element = sortedElements[i];
-                prizes[key] = element.value;
-                console.log(`Sequential mapping: ${key} = ${element.value} (from: ${element.text})`);
             }
-        }
+        });
         
         // Log all prizes found for debugging
         console.log('All prizes parsed:', prizes);

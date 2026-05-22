@@ -4,6 +4,14 @@ const cheerio = require('cheerio');
 async function handler(req, res) {
     const BASE_URL = 'https://www.jogossantacasa.pt/web/SCCartazResult';
     
+    // Helper function to extract prize value from text
+    function extractPrizeValue(text) {
+        if (!text) return null;
+        const valueStr = text.replace(/[^\d,.]/g, '').replace(/\./g, '').replace(',', '.');
+        const value = parseFloat(valueStr);
+        return !isNaN(value) && value > 0 ? value : null;
+    }
+    
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
@@ -78,18 +86,20 @@ async function handler(req, res) {
         console.log('Prize elements found:', prizeElements);
          
         // Parse prizes by looking for text patterns like "3º Prémio", "4º Prémio", etc.
+        // and associate them with their values
         prizeElements.forEach(prizeElement => {
             const text = prizeElement.text;
             console.log('Checking prize element:', text, 'value:', prizeElement.value);
             let prizeKey = null;
             
-            if (text.includes('2º Prémio')) {
+            // More flexible matching - look for the pattern anywhere in the text
+            if (text.includes('2º Prémio') || text.includes('2. º Prémio') || text.includes('2ºPremio')) {
                 prizeKey = '5+0';
-            } else if (text.includes('3º Prémio')) {
+            } else if (text.includes('3º Prémio') || text.includes('3. º Prémio') || text.includes('3ºPremio')) {
                 prizeKey = '4+0';
-            } else if (text.includes('4º Prémio')) {
+            } else if (text.includes('4º Prémio') || text.includes('4. º Prémio') || text.includes('4ºPremio')) {
                 prizeKey = '3+0';
-            } else if (text.includes('5º Prémio')) {
+            } else if (text.includes('5º Prémio') || text.includes('5. º Prémio') || text.includes('5ºPremio')) {
                 prizeKey = '2+0';
             }
             
@@ -98,6 +108,46 @@ async function handler(req, res) {
                 console.log(`Prize ${prizeKey} found: ${prizeElement.value} (from text: ${text})`);
             }
         });
+        
+        // If we still haven't found prizes, try to extract from nearby elements
+        // Look for elements containing the prize names and get values from next siblings
+        if (Object.keys(prizes).length === 0) {
+            console.log('Trying alternative prize extraction method...');
+            $('li').each((i, el) => {
+                const text = $(el).text().trim();
+                let prizeKey = null;
+                
+                if (text.includes('2º Prémio') || text.includes('2. º Prémio') || text.includes('2ºPremio')) {
+                    prizeKey = '5+0';
+                } else if (text.includes('3º Prémio') || text.includes('3. º Prémio') || text.includes('3ºPremio')) {
+                    prizeKey = '4+0';
+                } else if (text.includes('4º Prémio') || text.includes('4. º Prémio') || text.includes('4ºPremio')) {
+                    prizeKey = '3+0';
+                } else if (text.includes('5º Prémio') || text.includes('5. º Prémio') || text.includes('5ºPremio')) {
+                    prizeKey = '2+0';
+                }
+                
+                if (prizeKey) {
+                    // Try to find the value in this element or the next one
+                    let valueText = $(el).text();
+                    let value = extractPrizeValue(valueText);
+                    
+                    // If no value in this element, check next sibling
+                    if (value === null) {
+                        const nextEl = $(el).next('li');
+                        if (nextEl.length > 0) {
+                            valueText = nextEl.text();
+                            value = extractPrizeValue(valueText);
+                        }
+                    }
+                    
+                    if (value !== null) {
+                        prizes[prizeKey] = value;
+                        console.log(`Prize ${prizeKey} found: ${value} (from text: '${text}' + next element)`);
+                    }
+                }
+            });
+        }
         
         // Log all prizes found for debugging
         console.log('All prizes parsed:', prizes);

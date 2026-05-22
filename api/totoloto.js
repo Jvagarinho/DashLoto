@@ -76,28 +76,31 @@ async function handler(req, res) {
         });
         
         console.log('Prize elements found:', prizeElements);
-        
-        // Totoloto prize order:
-        // Lucky number only counts for 1st prize (jackpot)
-        // index 0 = 5+0 (2º Prémio) = €25,270.12
-        // index 1 = 4+0 (3º Prémio) = €202.48
-        // index 2 = 3+0 (4º Prémio) = €5.28
-        // index 3 = 2+0 (5º Prémio) = €2.17
-        
-        const prizeMapping = {
-            '5+0': 0,
-            '4+0': 1,
-            '3+0': 2,
-            '2+0': 3
-        };
-        
-        Object.keys(prizeMapping).forEach(key => {
-            const idx = prizeMapping[key];
-            if (prizeElements[idx]) {
-                prizes[key] = prizeElements[idx].value;
-                console.log(`Prize ${key} (index ${idx}): ${prizeElements[idx].value}`);
+         
+        // Parse prizes by looking for text patterns like "3º Prémio", "4º Prémio", etc.
+        prizeElements.forEach(prizeElement => {
+            const text = prizeElement.text;
+            console.log('Checking prize element:', text, 'value:', prizeElement.value);
+            let prizeKey = null;
+            
+            if (text.includes('2º Prémio')) {
+                prizeKey = '5+0';
+            } else if (text.includes('3º Prémio')) {
+                prizeKey = '4+0';
+            } else if (text.includes('4º Prémio')) {
+                prizeKey = '3+0';
+            } else if (text.includes('5º Prémio')) {
+                prizeKey = '2+0';
+            }
+            
+            if (prizeKey) {
+                prizes[prizeKey] = prizeElement.value;
+                console.log(`Prize ${prizeKey} found: ${prizeElement.value} (from text: ${text})`);
             }
         });
+        
+        // Log all prizes found for debugging
+        console.log('All prizes parsed:', prizes);
         
         console.log('Final numbers:', numbers, 'Lucky:', luckyNumber);
         

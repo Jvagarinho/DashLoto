@@ -150,30 +150,41 @@ function calculatePrize(matchedNumbers, matchedStars) {
     const fallbackPrize = prizeTable[prizeKey];
     
     let prizeTextValue = '';
-    let prizeAmountValue = 0;
+    let prizeAmountValue = null; // Use null to distinguish between 0 amount and not found
+    let isPrizeFound = false;
     
-    console.log('Prize check:', prizeKey, currentDraw.prizes);
+    console.log('Prize check:', prizeKey, 'currentDraw.prizes:', currentDraw.prizes);
     
-    if (currentDraw.prizes && currentDraw.prizes[prizeKey] !== undefined) {
+    if (currentDraw.prizes && currentDraw.prizes.hasOwnProperty(prizeKey)) {
         const scrapedPrize = currentDraw.prizes[prizeKey];
         prizeTextValue = fallbackPrize ? fallbackPrize.text : prizeKey;
         if (typeof scrapedPrize === 'number') {
             prizeAmountValue = scrapedPrize;
-        } else if (scrapedPrize && typeof scrapedPrize === 'object' && scrapedPrize.amount) {
+            isPrizeFound = true;
+            console.log(`Prize found for key ${prizeKey}: ${prizeAmountValue}`);
+        } else if (scrapedPrize && typeof scrapedPrize === 'object' && scrapedPrize.amount !== undefined) {
             prizeAmountValue = scrapedPrize.amount;
+            isPrizeFound = true;
+            console.log(`Prize found for key ${prizeKey}: ${prizeAmountValue}`);
+        } else {
+            console.log(`Prize ${prizeKey} found but has invalid value:`, scrapedPrize);
         }
+    } else {
+        console.log(`Prize ${prizeKey} not found in currentDraw.prizes`);
     }
     
-    if (prizeAmountValue === 0 && fallbackPrize) {
-        prizeTextValue = fallbackPrize.text;
-        prizeAmountValue = 0; // No fallback amount - will show 0 if not scraped
-    }
-    
-    if (prizeAmountValue > 0) {
+    if (isPrizeFound) {
+        // We found the prize in the scraped data
         prizeResult.className = 'mt-6 p-6 rounded-xl text-center winner';
         prizeText.textContent = prizeTextValue;
         prizeAmount.textContent = `€${prizeAmountValue.toLocaleString('pt-PT')}`;
+    } else if (fallbackPrize) {
+        // We didn't find the prize in scraped data but we know what it should be called
+        prizeResult.className = 'mt-6 p-6 rounded-xl text-center winner';
+        prizeText.textContent = fallbackPrize.text;
+        prizeAmount.textContent = '€0 (valor não disponível)';
     } else {
+        // No prize at all
         prizeResult.className = 'mt-6 p-6 rounded-xl text-center no-win';
         prizeText.textContent = 'Sem prémio nesta categoria';
         prizeAmount.textContent = '€0';

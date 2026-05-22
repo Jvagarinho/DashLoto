@@ -89,18 +89,16 @@ async function handler(req, res) {
         prizes = {};
          
         // Extract prizes by finding each prize block (<ul class="colums"> or <ul class="colums listBg">)
-        // and using their order/index since the structure is consistent:
-        // index 0: 1.º Prémio (jackpot)
-        // index 1: 2.º Prémio (5 números) → maps to '5+0'
-        // index 2: 3.º Prémio (4 números) → maps to '4+0' 
-        // index 3: 4.º Prémio (3 números) → maps to '3+0'
-        // index 4: 5.º Prémio (2 números) → maps to '2+0'
-        // index 5: Nº da Sorte (reembolso) → we ignore this for regular prizes
+        // Based on observed structure:
+        // ul index 3: 3.º Prémio → 4 números → '4+0'
+        // ul index 4: 4.º Prémio → 3 números → '3+0'  
+        // ul index 5: 5.º Prémio → 2 números → '2+0'
+        // Formula: numbers = 7 - ulIndex, prizeKey = '${numbers}+0'
         $('ul.colums, ul.colums.listBg').each((i, ul) => {
             const lis = $(ul).find('li');
             if (lis.length >= 4) {
-                // The value is always in the 4th li element (index 3)
-                const valueText = $(lis[3]).text().trim();    // e.g., "€ 407,49&nbsp;"
+                // The prize value is in the 4th li element (index 3)
+                const valueText = $(lis[3]).text().trim();
                 
                 console.log(`Checking ul #${i}: valueText='${valueText}'`);
                 
@@ -115,26 +113,17 @@ async function handler(req, res) {
                     }
                 }
                 
-                // Map ul index to our internal prize key based on known order
-                // Based on the HTML structure:
-                // ul #0: ? (possibly header or container)
-                // ul #1: 1.º Prémio (jackpot) - we skip this for regular prizes
-                // ul #2: 2.º Prémio (5 números) → maps to '5+0'
-                // ul #3: 3.º Prémio (4 números) → maps to '4+0' 
-                // ul #4: 4.º Prémio (3 números) → maps to '3+0'
-                // ul #5: 5.º Prémio (2 números) → maps to '2+0'
-                // ul #6: Nº da Sorte (reembolso) - we skip this
+                // Map ul index to prize key using discovered pattern:
+                // ul index 3 → 3.º Prémio → 4 números → '4+0'
+                // ul index 4 → 4.º Prémio → 3 números → '3+0'
+                // ul index 5 → 5.º Prémio → 2 números → '2+0'
+                // Formula: numbers = 7 - ulIndex
                 let prizeKey = null;
-                if (i === 2) {
-                    prizeKey = '5+0'; // 2.º Prémio
-                } else if (i === 3) {
-                    prizeKey = '4+0'; // 3.º Prémio
-                } else if (i === 4) {
-                    prizeKey = '3+0'; // 4.º Prémio
-                } else if (i === 5) {
-                    prizeKey = '2+0'; // 5.º Prémio
+                if (i >= 3 && i <= 5) {
+                    const numbers = 7 - i;
+                    prizeKey = `${numbers}+0`;
                 }
-                // Skip i=0,1 (header/jackpot) and i=6+ (Nº da Sorte, etc.)
+                // Skip ul index 0,1,2 (headers/jackpot/counts) and 6+ (Nº da Sorte, etc.)
                 
                 if (prizeKey && prizeValue !== null) {
                     prizes[prizeKey] = prizeValue;

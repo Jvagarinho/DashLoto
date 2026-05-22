@@ -89,15 +89,21 @@ async function handler(req, res) {
         prizes = {};
          
         // Extract prizes by finding each prize block (<ul class="colums"> or <ul class="colums listBg">)
+        // and using their order/index since the structure is consistent:
+        // index 0: 1.º Prémio (jackpot)
+        // index 1: 2.º Prémio (5 números) → maps to '5+0'
+        // index 2: 3.º Prémio (4 números) → maps to '4+0' 
+        // index 3: 4.º Prémio (3 números) → maps to '3+0'
+        // index 4: 5.º Prémio (2 números) → maps to '2+0'
+        // index 5: Nº da Sorte (reembolso) → we ignore this for regular prizes
         $('ul.colums, ul.colums.listBg').each((i, ul) => {
             const lis = $(ul).find('li');
             if (lis.length >= 4) {
-                const prizeNameText = $(lis[0]).text().trim(); // e.g., "3.º Prémio"
+                // The value is always in the 4th li element (index 3)
                 const valueText = $(lis[3]).text().trim();    // e.g., "€ 407,49&nbsp;"
                 
-                console.log(`Checking ul #${i}: prizeName='${prizeNameText}', valueText='${valueText}'`);
+                console.log(`Checking ul #${i}: valueText='${valueText}'`);
                 
-                let prizeKey = null;
                 let prizeValue = null;
                 
                 // Extract prize value from the 4th li element
@@ -109,34 +115,32 @@ async function handler(req, res) {
                     }
                 }
                 
-                // Map prize name to our internal key
-                if (prizeNameText.includes('1.º Prémio') || prizeNameText.includes('1. º Prémio') || 
-                    prizeNameText.includes('1ºPrémio') || prizeNameText.includes('1° Prémio') || 
-                    prizeNameText.includes('1.º Prémio')) {
-                    // Jackpot - we handle this separately if needed
-                } else if (prizeNameText.includes('2.º Prémio') || prizeNameText.includes('2. º Prémio') || 
-                          prizeNameText.includes('2ºPrémio') || prizeNameText.includes('2° Prémio') || 
-                          prizeNameText.includes('2.º Prémio')) {
-                    prizeKey = '5+0';
-                } else if (prizeNameText.includes('3.º Prémio') || prizeNameText.includes('3. º Prémio') || 
-                          prizeNameText.includes('3ºPrémio') || prizeNameText.includes('3° Prémio') || 
-                          prizeNameText.includes('3.º Prémio')) {
-                    prizeKey = '4+0';
-                } else if (prizeNameText.includes('4.º Prémio') || prizeNameText.includes('4. º Prémio') || 
-                          prizeNameText.includes('4ºPrémio') || prizeNameText.includes('4° Prémio') || 
-                          prizeNameText.includes('4.º Prémio')) {
-                    prizeKey = '3+0';
-                } else if (prizeNameText.includes('5.º Prémio') || prizeNameText.includes('5. º Prémio') || 
-                          prizeNameText.includes('5ºPrémio') || prizeNameText.includes('5° Prémio') || 
-                          prizeNameText.includes('5.º Prémio')) {
-                    prizeKey = '2+0';
+                // Map ul index to our internal prize key based on known order
+                // Based on the HTML structure:
+                // ul #0: ? (possibly header or container)
+                // ul #1: 1.º Prémio (jackpot) - we skip this for regular prizes
+                // ul #2: 2.º Prémio (5 números) → maps to '5+0'
+                // ul #3: 3.º Prémio (4 números) → maps to '4+0' 
+                // ul #4: 4.º Prémio (3 números) → maps to '3+0'
+                // ul #5: 5.º Prémio (2 números) → maps to '2+0'
+                // ul #6: Nº da Sorte (reembolso) - we skip this
+                let prizeKey = null;
+                if (i === 2) {
+                    prizeKey = '5+0'; // 2.º Prémio
+                } else if (i === 3) {
+                    prizeKey = '4+0'; // 3.º Prémio
+                } else if (i === 4) {
+                    prizeKey = '3+0'; // 4.º Prémio
+                } else if (i === 5) {
+                    prizeKey = '2+0'; // 5.º Prémio
                 }
+                // Skip i=0,1 (header/jackpot) and i=6+ (Nº da Sorte, etc.)
                 
                 if (prizeKey && prizeValue !== null) {
                     prizes[prizeKey] = prizeValue;
-                    console.log(`✅ Prize mapped: ${prizeKey} = €${prizeValue} (from '${prizeNameText}')`);
+                    console.log(`✅ Prize mapped: ${prizeKey} = €${prizeValue} (from ul index ${i})`);
                 } else if (prizeKey) {
-                    console.log(`⚠️ Prize name found for ${prizeKey} but no valid value in '${valueText}'`);
+                    console.log(`⚠️ Prize key ${prizeKey} identified but no valid value in '${valueText}'`);
                 }
             }
         });

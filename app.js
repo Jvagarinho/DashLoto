@@ -150,41 +150,46 @@ function calculatePrize(matchedNumbers, matchedStars) {
     const fallbackPrize = prizeTable[prizeKey];
     
     let prizeTextValue = '';
-    let prizeAmountValue = null; // Use null to distinguish between 0 amount and not found
+    let prizeAmountValue = null; // null means not found, 0 means found but zero amount
     let isPrizeFound = false;
     
     console.log('Prize check:', prizeKey, 'currentDraw.prizes:', currentDraw.prizes);
     
+    // Check if we have this prize in our scraped data
     if (currentDraw.prizes && currentDraw.prizes.hasOwnProperty(prizeKey)) {
         const scrapedPrize = currentDraw.prizes[prizeKey];
         prizeTextValue = fallbackPrize ? fallbackPrize.text : prizeKey;
         if (typeof scrapedPrize === 'number') {
             prizeAmountValue = scrapedPrize;
             isPrizeFound = true;
-            console.log(`Prize found for key ${prizeKey}: ${prizeAmountValue}`);
-        } else if (scrapedPrize && typeof scrapedPrize === 'object' && scrapedPrize.amount !== undefined) {
+            console.log(`✅ Prize found for key ${prizeKey}: €${prizeAmountValue}`);
+        } else if (scrapedPrize !== null && typeof scrapedPrize === 'object' && scrapedPrize.amount !== undefined) {
             prizeAmountValue = scrapedPrize.amount;
             isPrizeFound = true;
-            console.log(`Prize found for key ${prizeKey}: ${prizeAmountValue}`);
+            console.log(`✅ Prize found for key ${prizeKey}: €${prizeAmountValue}`);
         } else {
-            console.log(`Prize ${prizeKey} found but has invalid value:`, scrapedPrize);
+            console.log(`⚠️ Prize ${prizeKey} found but has invalid/unparseable value:`, scrapedPrize);
+            // Still consider it found, but with 0 amount
+            prizeAmountValue = 0;
+            isPrizeFound = true;
         }
     } else {
-        console.log(`Prize ${prizeKey} not found in currentDraw.prizes`);
+        console.log(`❌ Prize ${prizeKey} NOT found in currentDraw.prizes`);
+        console.log('Available prizes:', Object.keys(currentDraw.prizes || {}));
     }
     
     if (isPrizeFound) {
-        // We found the prize in the scraped data
+        // We found the prize in the scraped data (even if amount is 0)
         prizeResult.className = 'mt-6 p-6 rounded-xl text-center winner';
         prizeText.textContent = prizeTextValue;
-        prizeAmount.textContent = `€${prizeAmountValue.toLocaleString('pt-PT')}`;
+        prizeAmount.textContent = `€${prizeAmountValue !== null ? prizeAmountValue.toLocaleString('pt-PT') : '0'}`;
     } else if (fallbackPrize) {
         // We didn't find the prize in scraped data but we know what it should be called
         prizeResult.className = 'mt-6 p-6 rounded-xl text-center winner';
         prizeText.textContent = fallbackPrize.text;
-        prizeAmount.textContent = '€0 (valor não disponível)';
+        prizeAmount.textContent = '€0 (valor não disponível no site)';
     } else {
-        // No prize at all
+        // No prize at all for this match combination
         prizeResult.className = 'mt-6 p-6 rounded-xl text-center no-win';
         prizeText.textContent = 'Sem prémio nesta categoria';
         prizeAmount.textContent = '€0';

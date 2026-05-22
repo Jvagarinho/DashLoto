@@ -21,25 +21,25 @@ const GAMES = {
 
 const PRIZE_TABLES = {
     euromilhoes: {
-        '5+2': { text: 'Jackpot! 🎉', min: 17000000 },
-        '5+1': { text: '2º Prémio', min: 500000 },
-        '5+0': { text: '3º Prémio', min: 50000 },
-        '4+2': { text: '4º Prémio', min: 5000 },
-        '4+1': { text: '5º Prémio', min: 200 },
-        '3+2': { text: '6º Prémio', min: 50 },
-        '4+0': { text: '7º Prémio', min: 30 },
-        '2+2': { text: '8º Prémio', min: 15 },
-        '3+1': { text: '9º Prémio', min: 10 },
-        '3+0': { text: '10º Prémio', min: 8 },
-        '1+2': { text: '11º Prémio', min: 8 },
-        '2+1': { text: '12º Prémio', min: 5 },
-        '2+0': { text: '13º Prémio', min: 4.33 }
+        '5+2': { text: 'Jackpot! 🎉' },
+        '5+1': { text: '2º Prémio' },
+        '5+0': { text: '3º Prémio' },
+        '4+2': { text: '4º Prémio' },
+        '4+1': { text: '5º Prémio' },
+        '3+2': { text: '6º Prémio' },
+        '4+0': { text: '7º Prémio' },
+        '2+2': { text: '8º Prémio' },
+        '3+1': { text: '9º Prémio' },
+        '3+0': { text: '10º Prémio' },
+        '1+2': { text: '11º Prémio' },
+        '2+1': { text: '12º Prémio' },
+        '2+0': { text: '13º Prémio' }
     },
     totoloto: {
-        '5+0': { text: '2º Prémio', min: 25270 },
-        '4+0': { text: '3º Prémio', min: 407.49 },
-        '3+0': { text: '4º Prémio', min: 5.15 },
-        '2+0': { text: '5º Prémio', min: 2.17 }
+        '5+0': { text: '2º Prémio' },
+        '4+0': { text: '3º Prémio' },
+        '3+0': { text: '4º Prémio' },
+        '2+0': { text: '5º Prémio' }
     }
 };
 
@@ -166,7 +166,7 @@ function calculatePrize(matchedNumbers, matchedStars) {
     
     if (prizeAmountValue === 0 && fallbackPrize) {
         prizeTextValue = fallbackPrize.text;
-        prizeAmountValue = fallbackPrize.min;
+        prizeAmountValue = 0; // No fallback amount - will show 0 if not scraped
     }
     
     if (prizeAmountValue > 0) {

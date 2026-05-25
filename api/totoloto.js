@@ -103,6 +103,7 @@ async function handler(req, res) {
                 console.log(`Ul #${i}: checking valueText='${valueText}'`);
                 
                 let prizeValue = null;
+                let prizeKey = null;
                 let hasWinners = false;
                 const winnerCountStr = $(lis[2]).text().trim();
                 const winnerCount = parseInt(winnerCountStr.replace(/\./g, ''));
@@ -128,22 +129,23 @@ async function handler(req, res) {
                     }
                 }
                 
-                // Map ul index to prize key:
-                // Based on observation: ul index 1 → 1.º Prémio (jackpot)
-                //                       ul index 2 → 2.º Prémio → 5 números → '5+0'
-                //                       ul index 3 → 3.º Prémio → 4 números → '4+0'
-                //                       ul index 4 → 4.º Prémio → 3 números → '3+0'
-                //                       ul index 5 → 5.º Prémio → 2 números → '2+0'
-                let prizeKey = null;
-                if (i >= 1 && i <= 5) {
-                    if (i === 1) {
-                        prizeKey = '5+1'; // 1.º Prémio (jackpot)
-                    } else {
-                        const numbers = 7 - i; // 7-2=5, 7-3=4, 7-4=3, 7-5=2
-                        prizeKey = `${numbers}+0`;
+                // Map ul index to prize key (only if not already set by reembolso check)
+                if (!prizeKey) {
+                    // Based on observation: ul index 1 → 1.º Prémio (jackpot)
+                    //                       ul index 2 → 2.º Prémio → 5 números → '5+0'
+                    //                       ul index 3 → 3.º Prémio → 4 números → '4+0'
+                    //                       ul index 4 → 4.º Prémio → 3 números → '3+0'
+                    //                       ul index 5 → 5.º Prémio → 2 números → '2+0'
+                    if (i >= 1 && i <= 5) {
+                        if (i === 1) {
+                            prizeKey = '5+1'; // 1.º Prémio (jackpot)
+                        } else {
+                            const numbers = 7 - i; // 7-2=5, 7-3=4, 7-4=3, 7-5=2
+                            prizeKey = `${numbers}+0`;
+                        }
                     }
                 }
-                // Skip ul index 0 (possible header) and 6+ (Nº da Sorte, etc.)
+                // Skip ul index 0 (possible header) and 6+ (Nº da Sorte already handled)
                 
                 if (prizeKey && prizeValue !== null) {
                     prizes[prizeKey] = prizeValue;

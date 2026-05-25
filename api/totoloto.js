@@ -112,11 +112,19 @@ async function handler(req, res) {
                 
                 // Extract prize value from the 4th li element (only if there are winners)
                 if (hasWinners && valueText) {
-                    // Remove currency symbol, spaces, dots (thousands separator), replace comma with decimal point
-                    const valueStr = valueText.replace(/[^\d,.]/g, '').replace(/\./g, '').replace(',', '.');
-                    const value = parseFloat(valueStr);
-                    if (!isNaN(value) && value > 0) {
-                        prizeValue = value;
+                    // Check for "Nº da Sorte" (reembolso) - value is the fixed bet amount €2
+                    const nameText = $(lis[0]).text().trim().toLowerCase();
+                    if (nameText.includes('sorte') || nameText.includes('reembolso')) {
+                        prizeKey = '0+1'; // 0 numbers + lucky number = reembolso
+                        prizeValue = 2; // Fixed bet amount: €2
+                        console.log(`✅ Reembolso mapped: ${prizeKey} = €${prizeValue} (from '${nameText}')`);
+                    } else {
+                        // Remove currency symbol, spaces, dots (thousands separator), replace comma with decimal point
+                        const valueStr = valueText.replace(/[^\d,.]/g, '').replace(/\./g, '').replace(',', '.');
+                        const value = parseFloat(valueStr);
+                        if (!isNaN(value) && value > 0) {
+                            prizeValue = value;
+                        }
                     }
                 }
                 

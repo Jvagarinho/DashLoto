@@ -39,7 +39,8 @@ const PRIZE_TABLES = {
         '5+0': { text: '2º Prémio' },
         '4+0': { text: '3º Prémio' },
         '3+0': { text: '4º Prémio' },
-        '2+0': { text: '5º Prémio' }
+        '2+0': { text: '5º Prémio' },
+        '0+1': { text: 'Reembolso' }
     }
 };
 

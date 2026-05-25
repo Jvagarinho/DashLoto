@@ -88,24 +88,31 @@ async function handler(req, res) {
         // Reset prizes object
         prizes = {};
          
-        // Extract prizes by finding each prize block (<ul class="colums"> or <ul class="colums listBg">)
-        // Based on observed structure:
-        // ul index 3: 3.º Prémio → 4 números → '4+0'
-        // ul index 4: 4.º Prémio → 3 números → '3+0'  
-        // ul index 5: 5.º Prémio → 2 números → '2+0'
-        // Formula: numbers = 7 - ulIndex, prizeKey = '${numbers}+0'
+        // Based on the logs, we can see the pattern clearly:
+        // Ul #3: valueText='€ 407,49' → 3.º Prémio → 4 números → '4+0'
+        // Ul #4: valueText='€ 5,15'   → 4.º Prémio → 3 números → '3+0'
+        // Ul #5: valueText='€ 2,16'   → 5.º Prémio → 2 números → '2+0'
+        //
+        // The value is always in the 4th li (index 3) of each ul
         $('ul.colums, ul.colums.listBg').each((i, ul) => {
             const lis = $(ul).find('li');
             if (lis.length >= 4) {
-                // The prize value is in the 4th li element (index 3)
+                // Get the value from the 4th li element
                 const valueText = $(lis[3]).text().trim();
                 
-                console.log(`Checking ul #${i}: valueText='${valueText}'`);
+                console.log(`Ul #${i}: checking valueText='${valueText}'`);
                 
                 let prizeValue = null;
+                let hasWinners = false;
+                const winnerCountStr = $(lis[2]).text().trim();
+                const winnerCount = parseInt(winnerCountStr.replace(/\./g, ''));
+                if (!isNaN(winnerCount) && winnerCount > 0) {
+                    hasWinners = true;
+                }
                 
-                // Extract prize value from the 4th li element
-                if (valueText) {
+                // Extract prize value from the 4th li element (only if there are winners)
+                if (hasWinners && valueText) {
+                    // Remove currency symbol, spaces, dots (thousands separator), replace comma with decimal point
                     const valueStr = valueText.replace(/[^\d,.]/g, '').replace(/\./g, '').replace(',', '.');
                     const value = parseFloat(valueStr);
                     if (!isNaN(value) && value > 0) {
@@ -113,17 +120,22 @@ async function handler(req, res) {
                     }
                 }
                 
-                // Map ul index to prize key using discovered pattern:
-                // ul index 3 → 3.º Prémio → 4 números → '4+0'
-                // ul index 4 → 4.º Prémio → 3 números → '3+0'
-                // ul index 5 → 5.º Prémio → 2 números → '2+0'
-                // Formula: numbers = 7 - ulIndex
+                // Map ul index to prize key:
+                // Based on observation: ul index 1 → 1.º Prémio (jackpot)
+                //                       ul index 2 → 2.º Prémio → 5 números → '5+0'
+                //                       ul index 3 → 3.º Prémio → 4 números → '4+0'
+                //                       ul index 4 → 4.º Prémio → 3 números → '3+0'
+                //                       ul index 5 → 5.º Prémio → 2 números → '2+0'
                 let prizeKey = null;
-                if (i >= 3 && i <= 5) {
-                    const numbers = 7 - i;
-                    prizeKey = `${numbers}+0`;
+                if (i >= 1 && i <= 5) {
+                    if (i === 1) {
+                        prizeKey = '5+1'; // 1.º Prémio (jackpot)
+                    } else {
+                        const numbers = 7 - i; // 7-2=5, 7-3=4, 7-4=3, 7-5=2
+                        prizeKey = `${numbers}+0`;
+                    }
                 }
-                // Skip ul index 0,1,2 (headers/jackpot/counts) and 6+ (Nº da Sorte, etc.)
+                // Skip ul index 0 (possible header) and 6+ (Nº da Sorte, etc.)
                 
                 if (prizeKey && prizeValue !== null) {
                     prizes[prizeKey] = prizeValue;

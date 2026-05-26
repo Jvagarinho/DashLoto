@@ -5,6 +5,7 @@ const GAMES = {
         numbersMax: 50,
         starsCount: 2,
         starsMax: 12,
+        maxFavorites: 5,
         instructions: '5 números (1-50) + 2 estrelas (1-12)',
         starsLabel: 'Estrelas'
     },
@@ -14,6 +15,7 @@ const GAMES = {
         numbersMax: 49,
         starsCount: 1,
         starsMax: 13,
+        maxFavorites: 10,
         instructions: '5 números (1-49) + 1 número da sorte (1-13)',
         starsLabel: 'Número da Sorte'
     }
@@ -197,6 +199,24 @@ function calculatePrize(matchedNumbers, matchedStars) {
     }
 }
 
+const STORAGE_KEY = 'dashloto_favorites';
+
+function getFavorites() {
+    try {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        const all = saved ? JSON.parse(saved) : { euromilhoes: [], totoloto: [] };
+        if (!all.euromilhoes) all.euromilhoes = [];
+        if (!all.totoloto) all.totoloto = [];
+        return all;
+    } catch {
+        return { euromilhoes: [], totoloto: [] };
+    }
+}
+
+function saveFavorites(all) {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(all));
+}
+
 function saveFavorite() {
     const numbers = Array.from(document.querySelectorAll('#numbers-input input'))
         .map(input => parseInt(input.value))
@@ -211,43 +231,191 @@ function saveFavorite() {
         return;
     }
     
-    const favorite = {
-        game: currentGame,
-        numbers: numbers,
-        stars: stars
-    };
+    const all = getFavorites();
+    const gameFavorites = all[currentGame];
+    const maxFav = GAMES[currentGame].maxFavorites;
     
-    localStorage.setItem('dashloto_favorite', JSON.stringify(favorite));
-    alert('⭐ Chave favorita guardada com sucesso!');
+    if (gameFavorites.length >= maxFav) {
+        alert(`Limite máximo de ${maxFav} chaves atingido para ${GAMES[currentGame].name}!`);
+        return;
+    }
+    
+    gameFavorites.push({ numbers, stars });
+    saveFavorites(all);
+    renderFavorites();
+    alert(`⭐ Chave guardada! (${gameFavorites.length}/${maxFav})`);
 }
 
-function loadFavorite() {
-    const saved = localStorage.getItem('dashloto_favorite');
-    
-    if (!saved) {
-        alert('Nenhuma chave favorita guardada!');
-        return;
-    }
-    
-    const favorite = JSON.parse(saved);
-    
-    if (favorite.game !== currentGame) {
-        alert(`A chave guardada é de ${GAMES[favorite.game].name}. Mude para esse jogo para carregar.`);
-        return;
-    }
+function deleteFavorite(index) {
+    const all = getFavorites();
+    all[currentGame].splice(index, 1);
+    saveFavorites(all);
+    renderFavorites();
+}
+
+function loadFavorite(index) {
+    const all = getFavorites();
+    const fav = all[currentGame][index];
+    if (!fav) return;
     
     const numberInputs = document.querySelectorAll('#numbers-input input');
     const starInputs = document.querySelectorAll('#stars-input input');
     
-    favorite.numbers.forEach((num, i) => {
+    fav.numbers.forEach((num, i) => {
         if (numberInputs[i]) numberInputs[i].value = num;
     });
     
-    favorite.stars.forEach((star, i) => {
+    fav.stars.forEach((star, i) => {
         if (starInputs[i]) starInputs[i].value = star;
     });
+}
+
+function renderFavorites() {
+    const container = document.getElementById('favorites-list');
+    const countEl = document.getElementById('favorites-count');
+    const maxEl = document.getElementById('favorites-max');
+    const section = document.getElementById('favorites-section');
     
-    alert('📂 Chave favorita carregada!');
+    if (!container) return;
+    
+    const all = getFavorites();
+    const gameFavorites = all[currentGame];
+    const maxFav = GAMES[currentGame].maxFavorites;
+    
+    if (countEl) countEl.textContent = gameFavorites.length;
+    if (maxEl) maxEl.textContent = maxFav;
+    
+    if (section) section.classList.toggle('hidden', gameFavorites.length === 0);
+    
+    container.innerHTML = gameFavorites.map((fav, idx) => {
+        const numbersHtml = fav.numbers.map(n => `<span class="fav-number">${n}</span>`).join('');
+        const starsHtml = fav.stars.map(s => `<span class="fav-star">${s}</span>`).join('');
+        return `
+            <div class="fav-item">
+                <div class="fav-key">${numbersHtml} ${fav.stars.length > 0 ? '· ' + starsHtml : ''}</div>
+                <div class="fav-actions">
+                    <button class="fav-btn-load" data-index="${idx}" title="Carregar">📂</button>
+                    <button class="fav-btn-del" data-index="${idx}" title="Apagar">✕</button>
+                </div>
+            </div>
+        `;
+    }).join('');
+    
+    // Attach event listeners
+    container.querySelectorAll('.fav-btn-load').forEach(btn => {
+        btn.addEventListener('click', () => loadFavorite(parseInt(btn.dataset.index)));
+    });
+    container.querySelectorAll('.fav-btn-del').forEach(btn => {
+        btn.addEventListener('click', () => deleteFavorite(parseInt(btn.dataset.index)));
+    });
+}
+
+async function verifyAllFavorites() {
+    const all = getFavorites();
+    const gameFavorites = all[currentGame];
+    if (gameFavorites.length === 0) return;
+    
+    const loading = document.getElementById('loading');
+    loading.classList.remove('hidden');
+    
+    try {
+        currentDraw = await fetchDrawResults();
+        
+        const dateOptions = { year: 'numeric', month: 'long', day: 'numeric' };
+        document.getElementById('draw-date').textContent = currentDraw.date.toLocaleDateString('pt-PT', dateOptions);
+        
+        renderDrawnNumbers(currentDraw.numbers, currentDraw.stars);
+        
+        // Build multi-results
+        const multiContainer = document.getElementById('multi-results');
+        const multiSection = document.getElementById('multi-result-section');
+        multiSection.classList.remove('hidden');
+        multiContainer.innerHTML = gameFavorites.map((fav, idx) => {
+            const userNumbersSet = new Set(fav.numbers);
+            const userStarsSet = new Set(fav.stars);
+            
+            const matchedNumbers = currentDraw.numbers.filter(n => userNumbersSet.has(n)).length;
+            const matchedStars = currentDraw.stars.filter(s => userStarsSet.has(s)).length;
+            
+            const prizeKey = `${matchedNumbers}+${matchedStars}`;
+            const prizeTable = PRIZE_TABLES[currentGame];
+            const fallbackPrize = prizeTable[prizeKey];
+            
+            let prizeText = 'Sem prémio';
+            let prizeAmount = '0';
+            
+            if (fallbackPrize) {
+                prizeText = fallbackPrize.text;
+            }
+            
+            if (currentDraw.prizes && currentDraw.prizes[prizeKey] !== undefined) {
+                const val = currentDraw.prizes[prizeKey];
+                if (typeof val === 'number' && val > 0) {
+                    prizeAmount = val.toLocaleString('pt-PT');
+                }
+            } else if (prizeKey === '0+1') {
+                prizeAmount = '2,00';
+            }
+            
+            const numbersHtml = fav.numbers.map(n => {
+                const match = currentDraw.numbers.includes(n);
+                return `<span class="user-number ${match ? 'matched' : ''}">${n}</span>`;
+            }).join('');
+            
+            const starsHtml = fav.stars.map(s => {
+                const match = currentDraw.stars.includes(s);
+                return `<span class="user-star ${match ? 'matched' : ''}">${s}</span>`;
+            }).join('');
+            
+            const isWin = (fallbackPrize && currentDraw.prizes && currentDraw.prizes[prizeKey] !== undefined) || prizeKey === '0+1';
+            
+            return `
+                <div class="multi-result-item ${isWin ? 'winner' : 'no-win'}">
+                    <div class="multi-result-header">Chave ${idx + 1}</div>
+                    <div class="multi-result-numbers">${numbersHtml} ${fav.stars.length > 0 ? '<span class="separator">·</span>' : ''} ${starsHtml}</div>
+                    <div class="multi-result-matches">
+                        <span class="match-badge blue">${matchedNumbers} números</span>
+                        <span class="match-badge purple">${matchedStars} ${currentGame === 'totoloto' ? 'sorte' : 'estrelas'}</span>
+                    </div>
+                    <div class="multi-result-prize">
+                        <span class="prize-label">${prizeText}</span>
+                        <span class="prize-value">€${prizeAmount}</span>
+                    </div>
+                </div>
+            `;
+        }).join('');
+        
+        // Show only the first key in the single result view (for reference)
+        const firstFav = gameFavorites[0];
+        const firstNumbersSet = new Set(firstFav.numbers);
+        const firstStarsSet = new Set(firstFav.stars);
+        const firstMatchedNumbers = currentDraw.numbers.filter(n => firstNumbersSet.has(n)).length;
+        const firstMatchedStars = currentDraw.stars.filter(s => firstStarsSet.has(s)).length;
+        
+        document.getElementById('matched-numbers').textContent = firstMatchedNumbers;
+        document.getElementById('matched-stars').textContent = firstMatchedStars;
+        
+        const userNumbersHtml = firstFav.numbers.map(n => {
+            const match = currentDraw.numbers.includes(n);
+            return `<div class="user-number ${match ? 'matched' : ''}">${n}</div>`;
+        }).join('');
+        
+        const userStarsHtml = firstFav.stars.map(s => {
+            const match = currentDraw.stars.includes(s);
+            return `<div class="user-star ${match ? 'matched' : ''}">${s}</div>`;
+        }).join('');
+        
+        document.getElementById('user-numbers').innerHTML = userNumbersHtml;
+        document.getElementById('user-stars').innerHTML = userStarsHtml;
+        
+        calculatePrize(firstMatchedNumbers, firstMatchedStars);
+        
+    } catch (error) {
+        console.error('Erro:', error);
+        alert('Erro ao verificar as chaves. Tente novamente.');
+    } finally {
+        loading.classList.add('hidden');
+    }
 }
 
 function switchGame(game) {
@@ -282,6 +450,8 @@ function switchGame(game) {
     
     currentDraw = null;
     document.getElementById('result-section').classList.add('hidden');
+    document.getElementById('multi-result-section').classList.add('hidden');
+    renderFavorites();
 }
 
 async function init() {
@@ -301,6 +471,8 @@ async function init() {
     } finally {
         loading.classList.add('hidden');
     }
+    
+    renderFavorites();
 }
 
 document.getElementById('btn-euromilhoes').addEventListener('click', () => switchGame('euromilhoes'));
@@ -339,6 +511,16 @@ document.getElementById('ticket-form').addEventListener('submit', async (e) => {
 });
 
 document.getElementById('save-favorite').addEventListener('click', saveFavorite);
-document.getElementById('load-favorite').addEventListener('click', loadFavorite);
+document.getElementById('verify-all').addEventListener('click', verifyAllFavorites);
+document.getElementById('load-favorite').addEventListener('click', () => {
+    const all = getFavorites();
+    const gameFavorites = all[currentGame];
+    if (gameFavorites.length === 0) {
+        alert('Nenhuma chave guardada!');
+        return;
+    }
+    // Load the last saved key
+    loadFavorite(gameFavorites.length - 1);
+});
 
 init();

@@ -72,13 +72,25 @@
                         ✅ Verificar Chave
                     </button>
                     <button type="button" id="save-favorite" class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-6 py-3 rounded-xl font-semibold transition-all">
-                        ⭐ Guardar Favorita
+                        ⭐ Guardar Chave
                     </button>
                     <button type="button" id="load-favorite" class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-6 py-3 rounded-xl font-semibold transition-all">
-                        📂 Carregar Favorita
+                        📂 Última Chave
                     </button>
                 </div>
             </form>
+        </div>
+
+        <!-- Favorites Section -->
+        <div id="favorites-section" class="hidden bg-white rounded-2xl shadow-2xl p-6 mb-6">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-xl font-bold text-santa-900">⭐ Chaves Guardadas</h2>
+                <span class="text-sm text-gray-500"><span id="favorites-count">0</span>/<span id="favorites-max">5</span></span>
+            </div>
+            <div id="favorites-list"></div>
+            <button type="button" id="verify-all" class="w-full mt-4 bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-xl font-semibold transition-all hover:scale-105">
+                🎯 Verificar Todas
+            </button>
         </div>
 
         <div id="result-section" class="hidden bg-white rounded-2xl shadow-2xl p-6">
@@ -121,6 +133,12 @@
                     <p id="prize-amount" class="text-3xl font-bold mt-2"></p>
                 </div>
             </div>
+        </div>
+
+        <!-- Multi Results Section -->
+        <div id="multi-result-section" class="hidden bg-white rounded-2xl shadow-2xl p-6 mt-6">
+            <h2 class="text-xl font-bold text-santa-900 mb-4">📊 Todas as Chaves</h2>
+            <div id="multi-results" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
         </div>
 
         <div id="loading" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center">

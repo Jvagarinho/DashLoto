@@ -284,8 +284,10 @@ function renderFavorites() {
     
     if (countEl) countEl.textContent = gameFavorites.length;
     if (maxEl) maxEl.textContent = maxFav;
-    
-    if (section) section.classList.toggle('hidden', gameFavorites.length === 0);
+
+    if (gameFavorites.length === 0) {
+        section.classList.add('hidden');
+    }
     
     container.innerHTML = gameFavorites.map((fav, idx) => {
         const numbersHtml = fav.numbers.map(n => `<span class="fav-number">${n}</span>`).join('');
@@ -454,6 +456,25 @@ function switchGame(game) {
     renderFavorites();
 }
 
+function toggleFavorites() {
+    const section = document.getElementById('favorites-section');
+    const all = getFavorites();
+    const gameFavorites = all[currentGame];
+    
+    if (gameFavorites.length === 0) {
+        alert('Nenhuma chave guardada!');
+        return;
+    }
+    
+    const isHidden = section.classList.contains('hidden');
+    section.classList.toggle('hidden');
+    
+    if (isHidden) {
+        renderFavorites();
+        section.scrollIntoView({ behavior: 'smooth' });
+    }
+}
+
 async function init() {
     const loading = document.getElementById('loading');
     loading.classList.remove('hidden');
@@ -512,15 +533,6 @@ document.getElementById('ticket-form').addEventListener('submit', async (e) => {
 
 document.getElementById('save-favorite').addEventListener('click', saveFavorite);
 document.getElementById('verify-all').addEventListener('click', verifyAllFavorites);
-document.getElementById('load-favorite').addEventListener('click', () => {
-    const all = getFavorites();
-    const gameFavorites = all[currentGame];
-    if (gameFavorites.length === 0) {
-        alert('Nenhuma chave guardada!');
-        return;
-    }
-    // Load the last saved key
-    loadFavorite(gameFavorites.length - 1);
-});
+document.getElementById('toggle-favorites').addEventListener('click', toggleFavorites);
 
 init();

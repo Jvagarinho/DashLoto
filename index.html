@@ -187,14 +187,33 @@
                     >
                 </div>
                 <div id="favorites-list"></div>
-                <button
-                    type="button"
-                    id="verify-all"
-                    class="w-full mt-4 bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-xl font-semibold transition-all hover:scale-105"
-                >
-                    🎯 Verificar Todas
-                </button>
+                <div class="flex gap-2 mt-4">
+                    <button
+                        type="button"
+                        id="verify-all"
+                        class="flex-1 bg-green-600 hover:bg-green-700 text-white px-4 py-3 rounded-xl font-semibold transition-all hover:scale-105"
+                    >
+                        🎯 Verificar Todas
+                    </button>
+                    <button
+                        type="button"
+                        id="export-favorites"
+                        class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-3 rounded-xl font-semibold transition-all hover:scale-105"
+                        title="Exportar chaves para ficheiro"
+                    >
+                        💾 Exportar
+                    </button>
+                    <button
+                        type="button"
+                        id="import-favorites"
+                        class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-3 rounded-xl font-semibold transition-all hover:scale-105"
+                        title="Importar chaves de ficheiro"
+                    >
+                        📂 Importar
+                    </button>
+                </div>
             </div>
+            <input type="file" id="import-file" accept=".json" class="hidden">
 
             <div
                 id="result-section"

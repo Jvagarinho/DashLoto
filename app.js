@@ -531,8 +531,59 @@ document.getElementById('ticket-form').addEventListener('submit', async (e) => {
     }
 });
 
+function exportFavorites() {
+    const all = getFavorites();
+    const total = all.euromilhoes.length + all.totoloto.length;
+    if (total === 0) {
+        alert('Não há chaves guardadas para exportar!');
+        return;
+    }
+
+    const blob = new Blob([JSON.stringify(all, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    const date = new Date().toISOString().slice(0, 10);
+    a.download = `dashloto_chaves_${date}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+}
+
+function importFavorites(file) {
+    const reader = new FileReader();
+    reader.onload = function (e) {
+        try {
+            const data = JSON.parse(e.target.result);
+            if (!data.euromilhoes || !data.totoloto) {
+                throw new Error('Formato inválido');
+            }
+            const current = getFavorites();
+            current.euromilhoes = data.euromilhoes;
+            current.totoloto = data.totoloto;
+            saveFavorites(current);
+            renderFavorites();
+            alert('Chaves importadas com sucesso!');
+        } catch {
+            alert('Ficheiro inválido. Selecione um ficheiro .json gerado pela exportação.');
+        }
+    };
+    reader.readAsText(file);
+}
+
 document.getElementById('save-favorite').addEventListener('click', saveFavorite);
 document.getElementById('verify-all').addEventListener('click', verifyAllFavorites);
 document.getElementById('toggle-favorites').addEventListener('click', toggleFavorites);
+document.getElementById('export-favorites').addEventListener('click', exportFavorites);
+document.getElementById('import-favorites').addEventListener('click', () => {
+    document.getElementById('import-file').click();
+});
+document.getElementById('import-file').addEventListener('change', (e) => {
+    if (e.target.files.length > 0) {
+        importFavorites(e.target.files[0]);
+        e.target.value = '';
+    }
+});
 
 init();

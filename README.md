@@ -1,68 +1,43 @@
 <p align="center">
-  <img src="https://img.shields.io/badge/status-active-success.svg" alt="Status">
-  <img src="https://img.shields.io/github/last-commit/Jvagarinho/DashLoto" alt="Último Commit">
-  <img src="https://img.shields.io/github/license/Jvagarinho/DashLoto" alt="License">
-  <img src="https://img.shields.io/badge/deploy-vercel-black?logo=vercel" alt="Vercel">
-  <img src="https://img.shields.io/badge/stack-vanilla%20js-yellow?logo=javascript" alt="JavaScript">
-  <img src="https://img.shields.io/badge/tailwindcss-0ea5e9?logo=tailwindcss" alt="Tailwind CSS">
-</p>
-
-<br>
-
-<p align="center">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://img.shields.io/badge/DashLoto-🎰-0ea5e9?style=for-the-badge&labelColor=1e293b&fontColor=white">
-    <img src="https://img.shields.io/badge/DashLoto-🎰-0ea5e9?style=for-the-badge">
-  </picture>
+  <a href="https://github.com/Jvagarinho/DashLoto">
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset="https://img.shields.io/badge/DashLoto-🎰-0ea5e9?style=for-the-badge&labelColor=0c4a6e&fontColor=white">
+      <img src="https://img.shields.io/badge/DashLoto-🎰-0ea5e9?style=for-the-badge" alt="DashLoto">
+    </picture>
+  </a>
 </p>
 
 <p align="center">
-  <b>Verificador de Resultados — Euromilhões & Totoloto</b><br>
+  <img src="https://img.shields.io/badge/status-active-success?style=flat-square" alt="Status">
+  <img src="https://img.shields.io/github/last-commit/Jvagarinho/DashLoto?style=flat-square" alt="Último Commit">
+  <img src="https://img.shields.io/github/license/Jvagarinho/DashLoto?style=flat-square" alt="License">
+  <img src="https://img.shields.io/badge/deploy-vercel-black?style=flat-square&logo=vercel" alt="Vercel">
+  <img src="https://img.shields.io/badge/stack-vanilla%20js-yellow?style=flat-square&logo=javascript" alt="JavaScript">
+  <img src="https://img.shields.io/badge/tailwindcss-0ea5e9?style=flat-square&logo=tailwindcss" alt="Tailwind CSS">
+</p>
+
+<h1 align="center">DashLoto</h1>
+
+<p align="center">
+  <strong>Verificador de Resultados — Euromilhões & Totoloto</strong><br>
   Resultados oficiais em tempo real com valores de prémios extraídos do site da Santa Casa.
 </p>
 
-<br>
+---
 
 ## ✨ Funcionalidades
 
-<table>
-<tr>
-<td width="50%">
-
-### 🎯 Verificação Individual
-- Insere a tua chave e descobre o prémio
-- Suporte para Euromilhões e Totoloto
-- Acertos destacados visualmente
-
-### ⭐ Múltiplos Favoritos
-- Guarda até **5 chaves** (Euromilhões) ou **10 chaves** (Totoloto)
-- Persistência no `localStorage`
-- Carregar e ver rapidamente
-
-### ✅ Verificar Todas
-- Verifica todas as chaves guardadas de uma só vez
-- Resultados lado a lado com prémios individuais
-- Interface clara e organizada
-
-</td>
-<td width="50%">
-
-### 💰 Prémios Reais
-- Valores extraídos do site oficial sorteio a sorteio
-- Sem estimativas — o valor exato do prémio
-- Jackpot detetado automaticamente
-
-### 🔄 Reembolso Totoloto
-- Acertar apenas no **Nº da Sorte** devolve **€2**
-- Equivalente ao valor da aposta
-
-### 🛡️ Fallback Inteligente
-- Dados de exemplo quando o site está indisponível
-- A app nunca fica sem resposta
-
-</td>
-</tr>
-</table>
+| | |
+|---|---|
+| **🎯 Verificação Individual** | Insere a tua chave e descobre o prémio instantaneamente. Suporte para Euromilhões e Totoloto com acertos destacados visualmente. |
+| **⭐ Múltiplos Favoritos** | Guarda até **5 chaves** (Euromilhões) ou **10 chaves** (Totoloto). Carrega e verifica rapidamente. |
+| **✅ Verificar Todas** | Verifica todas as chaves guardadas de uma só vez. Resultados lado a lado com prémios individuais. |
+| **💾 Persistência em Ficheiro** | As chaves são guardadas num ficheiro `.json` no teu computador via **File System Access API**. Persistem mesmo se limpares o histórico do navegador. |
+| **🔍 Detecção de Duplicados** | Alerta automático se tentares guardar uma chave já existente, com opção de confirmar ou cancelar. |
+| **💰 Prémios Reais** | Valores extraídos do site oficial sorteio a sorteio. Sem estimativas — o valor exato do prémio. Jackpot detetado automaticamente. |
+| **🔄 Reembolso Totoloto** | Acertar apenas no **Nº da Sorte** devolve **€2** (equivalente ao valor da aposta). |
+| **🛡️ Fallback Inteligente** | Dados de exemplo quando o site está indisponível. A app nunca fica sem resposta. |
+| **📤 Exportar / 📥 Importar** | Exporta as tuas chaves para ficheiro JSON e importa noutro dispositivo/navegador. |
 
 ---
 
@@ -112,16 +87,17 @@
 
 ```mermaid
 flowchart LR
-    A[Utilizador] --> B[Frontend<br>HTML + Tailwind]
-    B --> C{API}
-    C --> D[Vercel Serverless<br>/api/euromilhoes]
-    C --> E[Vercel Serverless<br>/api/totoloto]
+    A[Utilizador] --> B[Frontend<br>HTML + Tailwind + Vanilla JS]
+    B --> C{API Vercel}
+    C --> D[/api/euromilhoes]
+    C --> E[/api/totoloto]
     D --> F[Santa Casa<br>EuroMilhões]
     E --> G[Santa Casa<br>Totoloto]
     D --> H[JSON Response]
     E --> H
     H --> B
-    B --> I[Resultado<br>na tela]
+    B --> I[Resultado na tela]
+    B -.-> J[(Ficheiro JSON<br>File System Access API)]
 ```
 
 ---
@@ -130,17 +106,17 @@ flowchart LR
 
 ```
 DashLoto/
-├── 📄 index.html            # Frontend — interface principal
-├── 🎨 styles.css             # Estilos complementares ao Tailwind
-├── ⚡ app.js                 # Lógica JavaScript da aplicação
+├── 📄 index.html           # Frontend — interface principal
+├── 🎨 styles.css            # Estilos complementares ao Tailwind
+├── ⚡ app.js                # Lógica JavaScript da aplicação
 │
 ├── 📂 api/
-│   ├── 🇪🇺 euromilhoes.js    # Serverless: scraping Euromilhões
-│   └── 🇵🇹 totoloto.js       # Serverless: scraping Totoloto
+│   ├── 🇪🇺 euromilhoes.js   # Serverless: scraping Euromilhões
+│   └── 🇵🇹 totoloto.js      # Serverless: scraping Totoloto
 │
-├── 📦 package.json           # Dependências (axios, cheerio)
-├── ⚙️ vercel.json            # Configuração de deploy Vercel
-└── 📖 README.md              # Documentação
+├── 📦 package.json          # Dependências (axios, cheerio)
+├── ⚙️ vercel.json           # Configuração de deploy Vercel
+└── 📖 README.md             # Documentação
 ```
 
 ---
@@ -200,15 +176,36 @@ O deploy é automático se tiveres o repositório ligado à Vercel.
 
 ---
 
-## ⚠️ Notas
+## 💾 Persistência de Dados
+
+A aplicação utiliza uma **estratégia híbrida** para garantir que as tuas chaves nunca se perdem:
+
+| Camada | Descrição | Persistência |
+|:------|:----------|:-------------|
+| **Ficheiro JSON** (primária) | Guardado via File System Access API no computador do utilizador | ✅ Permanente (sobrevive a limpeza de histórico) |
+| **localStorage** (cache) | Cópia rápida para acesso imediato | ⚠️ Limitada (apagada se limpar dados do site) |
+| **Exportar/Importar** | Backup manual em ficheiro `.json` portátil | ✅ Total controlo do utilizador |
+
+> **Nota:** A File System Access API requer permissão do utilizador na primeira gravação. O botão **"📁 Guardar em..."** permite escolher/alterar a localização do ficheiro a qualquer momento.
+
+---
+
+## ⚠️ Notas Importantes
 
 - O scraping pode falhar se a Santa Casa alterar a estrutura do HTML — os parsers usam seletores específicos (`ul.colums`, `div.betMiddle`)
-- As chaves favoritas são guardadas no **`localStorage`** do navegador — não são partilhadas entre dispositivos nem persistidas em servidor
+- As chaves favoritas são guardadas **localmente no teu dispositivo** — não são partilhadas entre dispositivos nem enviadas para servidores
 - Esta aplicação é apenas para **fins informativos**. Verifica sempre os resultados oficiais em [jogossantacasa.pt](https://www.jogossantacasa.pt)
+- **Sem autenticação, sem contas, sem tracking** — 100% privacidade
+
+---
+
+## 📄 Licença
+
+Distribuído sob a licença MIT. Consulta `LICENSE` para mais informações.
 
 ---
 
 <p align="center">
   Feito com ❤️ em Portugal<br>
-  <sub>DashLoto © 2026</sub>
+  <sub>DashLoto © 2026 • <a href="https://github.com/Jvagarinho/DashLoto">GitHub</a></sub>
 </p>

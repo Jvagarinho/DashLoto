@@ -1,16 +1,13 @@
 <p align="center">
   <a href="https://github.com/Jvagarinho/DashLoto">
-    <picture>
-      <source media="(prefers-color-scheme: dark)" srcset="https://img.shields.io/badge/DashLoto-🎰-0ea5e9?style=for-the-badge&labelColor=0c4a6e&fontColor=white">
-      <img src="https://img.shields.io/badge/DashLoto-🎰-0ea5e9?style=for-the-badge" alt="DashLoto">
-    </picture>
+    <img src="https://img.shields.io/badge/DashLoto-🎰-0ea5e9?style=for-the-badge&logoWidth=20" alt="DashLoto">
   </a>
 </p>
 
 <p align="center">
   <img src="https://img.shields.io/badge/status-active-success?style=flat-square" alt="Status">
-  <img src="https://img.shields.io/github/last-commit/Jvagarinho/DashLoto?style=flat-square" alt="Último Commit">
-  <img src="https://img.shields.io/github/license/Jvagarinho/DashLoto?style=flat-square" alt="License">
+  <img src="https://img.shields.io/github/last-commit/Jvagarinho/DashLoto?style=flat-square" alt="Last Commit">
+  <img src="https://img.shields.io/badge/license-MIT-blue?style=flat-square" alt="License">
   <img src="https://img.shields.io/badge/deploy-vercel-black?style=flat-square&logo=vercel" alt="Vercel">
   <img src="https://img.shields.io/badge/stack-vanilla%20js-yellow?style=flat-square&logo=javascript" alt="JavaScript">
   <img src="https://img.shields.io/badge/tailwindcss-0ea5e9?style=flat-square&logo=tailwindcss" alt="Tailwind CSS">
@@ -87,17 +84,21 @@
 
 ```mermaid
 flowchart LR
-    A[Utilizador] --> B[Frontend<br>HTML + Tailwind + Vanilla JS]
+    A[Utilizador] --> B[Frontend
+    HTML + Tailwind + Vanilla JS]
     B --> C{API Vercel}
     C --> D[/api/euromilhoes]
     C --> E[/api/totoloto]
-    D --> F[Santa Casa<br>EuroMilhões]
-    E --> G[Santa Casa<br>Totoloto]
+    D --> F[Santa Casa
+    EuroMilhões]
+    E --> G[Santa Casa
+    Totoloto]
     D --> H[JSON Response]
     E --> H
     H --> B
     B --> I[Resultado na tela]
-    B -.-> J[(Ficheiro JSON<br>File System Access API)]
+    B -.-> J[(Ficheiro JSON
+    File System Access API)]
 ```
 
 ---

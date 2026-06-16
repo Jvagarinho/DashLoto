@@ -80,26 +80,6 @@
 
 ---
 
-## 🏗️ Arquitetura
-
-```mermaid
-flowchart LR
-    A[Utilizador] --> B[Frontend
-    HTML + Tailwind + Vanilla JS]
-    B --> C{API Vercel}
-    C --> D[/api/euromilhoes]
-    C --> E[/api/totoloto]
-    D --> F[Santa Casa
-    EuroMilhões]
-    E --> G[Santa Casa
-    Totoloto]
-    D --> H[JSON Response]
-    E --> H
-    H --> B
-    B --> I[Resultado na tela]
-    B -.-> J[(Ficheiro JSON
-    File System Access API)]
-```
 
 ---
 

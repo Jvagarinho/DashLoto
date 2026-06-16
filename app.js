@@ -349,6 +349,15 @@ async function saveFavorites(all) {
   await writeFavoritesToFile(all);
 }
 
+function keysEqual(key1, key2) {
+  return (
+    JSON.stringify(key1.numbers.sort((a, b) => a - b)) ===
+      JSON.stringify(key2.numbers.sort((a, b) => a - b)) &&
+    JSON.stringify(key1.stars.sort((a, b) => a - b)) ===
+      JSON.stringify(key2.stars.sort((a, b) => a - b))
+  );
+}
+
 function saveFavorite() {
   const numbers = Array.from(document.querySelectorAll("#numbers-input input"))
     .map((input) => parseInt(input.value))
@@ -372,6 +381,21 @@ function saveFavorite() {
       `Limite máximo de ${maxFav} chaves atingido para ${GAMES[currentGame].name}!`,
     );
     return;
+  }
+
+  // Check for duplicate key
+  const newKey = { numbers, stars };
+  const duplicateIndex = gameFavorites.findIndex((fav) =>
+    keysEqual(fav, newKey),
+  );
+  if (duplicateIndex !== -1) {
+    const confirmDuplicate = confirm(
+      `Esta chave já está guardada (Chave ${duplicateIndex + 1}).
+Deseja guardar mesmo assim?`,
+    );
+    if (!confirmDuplicate) {
+      return;
+    }
   }
 
   gameFavorites.push({ numbers, stars });
